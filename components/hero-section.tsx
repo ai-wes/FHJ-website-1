@@ -75,25 +75,25 @@ export function HeroSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 place-items-center mx-auto max-w-6xl animate-fade-up min-h-[420px] md:min-h-[520px]">
           {/* Left column: Title and subheading */}
           <div className="w-full flex flex-col justify-center h-full -translate-y-[20vh]">
-            <span className="text-white text-xl md:text-2xl lg:text-3xl font-bold uppercase tracking-widest mb-2">
+            <span className="text-white font-inter text-lg md:text-2xl lg:text-3xl uppercase tracking-widest mt-2 pr-1">
               THE
             </span>
             <div className="flex flex-row items-end">
               <span
-                className="font-extrabold uppercase text-4xl md:text-6xl lg:text-7xl tracking-tight text-[#b6a14b] mr-4"
-                style={{ letterSpacing: "0.04em" }}
+                className=" uppercase text-4xl md:text-6xl lg:text-7xl tracking-tight text-[#b6a14b] font-inter  "
+                style={{ letterSpacing: "0.02em" }}
               >
                 FUTURE
               </span>
               <span
-                className="font-extrabold uppercase text-4xl md:text-6xl lg:text-7xl tracking-tight text-accentBlue"
-                style={{ letterSpacing: "0.04em" }}
+                className="font-bold font-inter uppercase text-4xl md:text-6xl lg:text-7xl tracking-tight text-accentBlue"
+                style={{ letterSpacing: "0.01em" }}
               >
                 HUMAN
               </span>
             </div>
             <div className="flex flex-row justify-end">
-              <span className="text-white text-lg md:text-2xl lg:text-3xl font-bold uppercase tracking-widest mt-2 pr-1">
+              <span className="text-white font-inter text-lg md:text-2xl lg:text-3xl uppercase tracking-widest mt-2 pr-1">
                 JOURNAL
               </span>
             </div>

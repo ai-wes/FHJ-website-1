@@ -23,7 +23,6 @@ async function getAllArticles(): Promise<NextArticleType[]> {
     return flaskArticles.map((flaskArticle: any) => ({
       ...flaskArticle,
       _id: flaskArticle.id,
-      image: flaskArticle.cover_image,
     }));
   } catch (error) {
     console.error("Error fetching all articles from Flask:", error);

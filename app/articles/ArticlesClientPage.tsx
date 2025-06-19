@@ -102,12 +102,10 @@ export default function ArticlesClientPage({
         </div>
         <div className="container px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl mb-3">
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Articles
-              </span>
+            <h1 className="text-[2.5rem] leading-[1.1] font-[300] mb-3 font-['Inter'] uppercase tracking-[-0.02em] text-[#f1f5f9] drop-shadow-[0_0_4px_rgba(0,188,212,0.5)]">
+              Articles
             </h1>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm  font-['Inter'] font-[400] drop-shadow-[0_0_4px_rgba(0,188,212,0.5)] text-[#f1f5f9] mb-3">
               Explore the latest insights on the future of humanity through
               technology, science, and philosophy.
             </p>
@@ -130,9 +128,16 @@ export default function ArticlesClientPage({
             </div>
             <div className="flex gap-2 flex-wrap">
               <Button
-                variant={filterCategory === "" ? "default" : "outline"}
+                variant="outline"
                 size="sm"
                 onClick={() => handleCategoryChange("")}
+                className={`
+                  ${
+                    filterCategory === ""
+                      ? "bg-slate-100 text-slate-900 border-cyan-400 shadow-[0_0_8px_rgba(0,188,212,0.4)]"
+                      : "bg-slate-800/20 text-slate-100 border-slate-700 hover:bg-slate-700/30"
+                  } transition-all duration-200
+                `}
               >
                 All
               </Button>
@@ -146,9 +151,16 @@ export default function ArticlesClientPage({
               ].map((category) => (
                 <Button
                   key={category}
-                  variant={filterCategory === category ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
                   onClick={() => handleCategoryChange(category)}
+                  className={`
+                    ${
+                      filterCategory === category
+                        ? "bg-slate-100 text-slate-900 border-cyan-400 shadow-[0_0_8px_rgba(0,188,212,0.4)]"
+                        : "bg-slate-800/20 text-slate-100 border-slate-700 hover:bg-slate-700/30"
+                    } transition-all duration-200
+                  `}
                 >
                   {category}
                 </Button>
@@ -191,15 +203,15 @@ export default function ArticlesClientPage({
               filteredArticles.map((article: Article) => (
                 <Card
                   key={article.slug || article._id}
-                  className="p-0 hover:shadow-lg transition-shadow"
+                  className="p-0 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-slate-50 to-blue-50 border border-slate-200/50 backdrop-blur-sm hover:scale-[1.02]"
                 >
-                  <div className="h-36 sm:h-40 md:h-44 overflow-hidden">
+                  <div className="h-24 sm:h-28 md:h-32 overflow-hidden">
                     <Image
                       src={
-                        article.image &&
-                        !article.image.includes("%3C") &&
-                        !article.image.includes("<cloud_name>")
-                          ? article.image
+                        article.cover_image &&
+                        !article.cover_image.includes("%3C") &&
+                        !article.cover_image.includes("<cloud_name>")
+                          ? article.cover_image
                           : "/placeholder.svg"
                       }
                       alt={article.title}
@@ -208,52 +220,42 @@ export default function ArticlesClientPage({
                       className="h-full w-full object-cover transition-transform hover:scale-105"
                     />
                   </div>
-                  <CardHeader className="p-3">
+                  <CardHeader className="p-2">
                     <div className="flex items-center gap-1 mb-1">
                       <Badge
                         variant="secondary"
-                        className="text-[11px] font-medium"
+                        className="text-[10px] font-medium bg-slate-800 text-white px-1 py-0"
                       >
                         {article.category}
                       </Badge>
-                      <Separator orientation="vertical" className="h-3" />
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[10px] text-slate-600">
                         {new Date(article.date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
+                          month: "short",
                           day: "numeric",
                         })}
                       </span>
-                      {article.author && (
-                        <>
-                          <Separator orientation="vertical" className="h-3" />
-                          <span className="text-[11px] text-muted-foreground">
-                            By {article.author}
-                          </span>
-                        </>
-                      )}
                     </div>
-                    <CardTitle className="line-clamp-2 text-base">
+                    <CardTitle className="line-clamp-2 text-sm text-slate-900 leading-tight">
                       {article.title}
                     </CardTitle>
-                    <CardDescription className="line-clamp-3 text-xs mt-1">
+                    <CardDescription className="line-clamp-2 text-xs mt-1 text-slate-700 leading-tight">
                       {article.excerpt}
                     </CardDescription>
                   </CardHeader>
-                  <CardFooter className="p-3 pt-0 flex items-center justify-between">
+                  <CardFooter className="p-2 pt-0 flex items-center justify-between">
                     <Button
                       variant="ghost"
-                      className="p-0 text-primary hover:text-primary/80 group text-xs"
+                      className="p-0 text-slate-800 hover:text-slate-600 group text-xs h-auto"
                       asChild
                     >
                       <Link href={`/articles/${article.slug}`}>
-                        Read Article{" "}
+                        Read{" "}
                         <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-1" />
                       </Link>
                     </Button>
                     {article.reading_time && (
-                      <span className="text-[11px] text-muted-foreground">
-                        {article.reading_time} min read
+                      <span className="text-[10px] text-slate-600">
+                        {article.reading_time}
                       </span>
                     )}
                   </CardFooter>

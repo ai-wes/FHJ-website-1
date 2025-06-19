@@ -89,6 +89,8 @@ const config = {
           css: {
             maxWidth: "none",
             color: "hsl(var(--foreground))",
+            fontSize: "0.75rem",
+            lineHeight: "1.4",
             a: {
               color: "hsl(var(--primary))",
               "&:hover": {
@@ -97,15 +99,43 @@ const config = {
             },
             h1: {
               color: "hsl(var(--foreground))",
+              fontSize: "1.125rem",
+              marginBottom: "0.5rem",
+              marginTop: "1rem",
             },
             h2: {
               color: "hsl(var(--foreground))",
+              fontSize: "1rem",
+              marginBottom: "0.5rem",
+              marginTop: "0.75rem",
             },
             h3: {
               color: "hsl(var(--foreground))",
+              fontSize: "0.875rem",
+              marginBottom: "0.25rem",
+              marginTop: "0.5rem",
             },
             h4: {
               color: "hsl(var(--foreground))",
+              fontSize: "0.75rem",
+              marginBottom: "0.25rem",
+              marginTop: "0.5rem",
+            },
+            p: {
+              fontSize: "0.75rem",
+              lineHeight: "1.4",
+              marginBottom: "0.5rem",
+            },
+            li: {
+              fontSize: "0.75rem",
+              lineHeight: "1.4",
+              marginBottom: "0",
+            },
+            ul: {
+              marginBottom: "0.5rem",
+            },
+            ol: {
+              marginBottom: "0.5rem",
             },
             strong: {
               color: "hsl(var(--foreground))",
@@ -113,9 +143,10 @@ const config = {
             code: {
               color: "hsl(var(--foreground))",
               backgroundColor: "hsl(var(--muted))",
-              padding: "0.25rem 0.375rem",
+              padding: "0.125rem 0.25rem",
               borderRadius: "0.25rem",
               fontWeight: "400",
+              fontSize: "0.6875rem",
             },
             "code::before": {
               content: '""',
@@ -126,10 +157,15 @@ const config = {
             pre: {
               backgroundColor: "hsl(var(--muted))",
               color: "hsl(var(--foreground))",
+              fontSize: "0.6875rem",
+              padding: "0.75rem",
             },
             blockquote: {
               borderLeftColor: "hsl(var(--primary))",
               color: "hsl(var(--muted-foreground))",
+              fontSize: "0.75rem",
+              marginBottom: "0.5rem",
+              paddingLeft: "0.75rem",
             },
           },
         },

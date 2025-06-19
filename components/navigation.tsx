@@ -84,11 +84,11 @@ export function Navigation() {
           <Button
             asChild
             size="sm"
-            className="hidden md:flex bg-primary text-primary-foreground hover:bg-primary/90 relative overflow-hidden group text-sm"
+            className="hidden md:flex bg-slate-100 text-slate-900 hover:bg-slate-200 border border-cyan-400/50 shadow-[0_0_6px_rgba(0,188,212,0.3)] hover:shadow-[0_0_8px_rgba(0,188,212,0.4)] relative overflow-hidden group text-sm transition-all duration-200"
           >
             <Link href="/subscribe">
               <span className="relative z-10">Join Now</span>
-              <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+              <span className="absolute inset-0 bg-cyan-400/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
             </Link>
           </Button>
           <ModeToggle />

@@ -47,8 +47,8 @@ export function ArticleCard({
     coverImage && isValidUrl(coverImage) ? coverImage : "/placeholder.svg";
 
   return (
-    <Card className="tech-card overflow-hidden transition-all hover:shadow-md border-primary/10 bg-card/50 backdrop-blur-sm">
-      <div className="h-36 sm:h-40 md:h-44 overflow-hidden">
+    <Card className="tech-card overflow-hidden transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-white via-slate-50 to-blue-50 border border-slate-200/50 backdrop-blur-sm hover:scale-[1.02]">
+      <div className="h-24 sm:h-28 md:h-32 overflow-hidden">
         <Image
           src={imageSrc}
           alt={title}
@@ -57,41 +57,32 @@ export function ArticleCard({
           className="h-full w-full object-cover transition-transform hover:scale-105"
         />
       </div>
-      <CardHeader className="p-3">
+      <CardHeader className="p-2">
         <div className="flex items-center gap-1 mb-1">
-          <span className="text-[11px] font-medium text-primary">
+          <span className="text-[10px] font-medium bg-slate-800 text-white px-1 py-0 rounded">
             {category}
           </span>
-          <Separator orientation="vertical" className="h-3" />
-          <span className="text-[11px] text-muted-foreground">{date}</span>
-          {author && (
-            <>
-              <Separator orientation="vertical" className="h-3" />
-              <span className="text-[11px] text-muted-foreground">
-                By {author}
-              </span>
-            </>
-          )}
+          <span className="text-[10px] text-slate-600">{date}</span>
         </div>
-        <CardTitle className="line-clamp-2 text-base text-white drop-shadow-[0_1px_2px_rgba(255,255,255,0.08)]">
+        <CardTitle className="line-clamp-2 text-sm text-slate-900 leading-tight">
           {title}
         </CardTitle>
-        <CardDescription className="line-clamp-3 text-xs mt-1">
+        <CardDescription className="line-clamp-2 text-xs mt-1 text-slate-700 leading-tight">
           {excerpt}
         </CardDescription>
       </CardHeader>
-      <CardFooter className="p-3 pt-0 flex items-center justify-between">
+      <CardFooter className="p-2 pt-0 flex items-center justify-between">
         <Button
           variant="ghost"
-          className="p-0 text-primary hover:text-primary/80 group text-xs"
+          className="p-0 text-slate-800 hover:text-slate-600 group text-xs h-auto"
           asChild
         >
           <Link href={`/articles/${id}`}>
-            Read Article{" "}
+            Read{" "}
             <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-1" />
           </Link>
         </Button>
-        <span className="text-[11px] text-muted-foreground">{readingTime}</span>
+        <span className="text-[10px] text-slate-600">{readingTime}</span>
       </CardFooter>
     </Card>
   );

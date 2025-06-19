@@ -107,14 +107,14 @@ export default function Home() {
             <div className="absolute top-0 right-0 w-16 h-1 bg-accent-secondary/60"></div>
 
             <div className="mb-6 text-center">
-              <h2 className="text-xl font-bold tracking-tight mb-2">
+              <h2 className="text-xl font-bold font-inter tracking-tight mb-2">
                 Be an Informed{" "}
                 <span className="bg-gradient-to-r from-accent-secondary to-accent-secondary/70 bg-clip-text text-transparent">
                   Future
                 </span>{" "}
                 Human
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm font-inter text-muted-foreground">
                 Curated enlightenment. Straight to your inbox. Sign up below.
               </p>
             </div>
@@ -226,65 +226,6 @@ export default function Home() {
                 Featured articles are currently unavailable.
               </p>
             )}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-muted/20 py-24 md:py-32 relative neural-bg">
-        <div className="absolute inset-0 -z-10 network-grid">
-          <div className="absolute top-[10%] left-[15%] h-[1px] w-[200px] rotate-45 bg-primary/10" />
-          <div className="absolute bottom-[20%] right-[10%] h-[1px] w-[150px] -rotate-30 bg-primary/10" />
-          <div className="absolute top-[30%] right-[20%] h-[100px] w-[100px] rounded-full border border-primary/10" />
-        </div>
-        <div className="container px-8">
-          <div className="mb-16 text-left md:text-center">
-            <h2 className="text-2xl font-bold tracking-tight inline-flex flex-wrap justify-center">
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mr-2">
-                Explore
-              </span>{" "}
-              the Frontier
-            </h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl md:mx-auto text-sm">
-              Dive deep into the domains rewriting the human blueprint.
-            </p>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            <TopicCard
-              icon={<Brain className="h-6 w-6 text-primary" />}
-              title="Artificial Intelligence"
-              description="How machine minds are reshaping society, cognition, and our evolutionary trajectory."
-              href="/topics/ai"
-            />
-            <TopicCard
-              icon={<Dna className="h-6 w-6 text-primary" />}
-              title="Biotechnology"
-              description="From CRISPR to synthetic biology, how we're rewriting the code of life and human potential."
-              href="/topics/biotech"
-            />
-            <TopicCard
-              icon={<Zap className="h-6 w-6 text-primary" />}
-              title="Transhumanism"
-              description="The philosophical and practical movement toward transcending biological limitations."
-              href="/topics/transhumanism"
-            />
-            <TopicCard
-              icon={<Network className="h-6 w-6 text-primary" />}
-              title="Neural Interfaces"
-              description="Direct brain-computer connections that are revolutionizing how we interact with technology."
-              href="/topics/neural-interfaces"
-            />
-            <TopicCard
-              icon={<Cpu className="h-6 w-6 text-primary" />}
-              title="Quantum Computing"
-              description="How quantum technologies will transform computation and unlock new possibilities."
-              href="/topics/quantum-computing"
-            />
-            <TopicCard
-              icon={<Microscope className="h-6 w-6 text-primary" />}
-              title="Longevity Science"
-              description="Research and breakthroughs in extending human healthspan and lifespan."
-              href="/topics/longevity"
-            />
           </div>
         </div>
       </section>

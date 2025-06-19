@@ -48,8 +48,10 @@ export interface Article {
   date: string; // Store as ISO date string for proper sorting, e.g., "2023-05-15T00:00:00.000Z"
   excerpt: string;
   content: string; // Full article content, could be Markdown or HTML
-  image?: string;
+  cover_image?: string; // Primary image field used by API
+  image?: string; // Legacy field, kept for compatibility
   category?: string;
   author?: string;
   audio_url?: string;
+  reading_time?: string;
 }

@@ -30,6 +30,7 @@ const formSchema = z.object({
 
 export function NewsletterSignup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittedSuccessfully, setIsSubmittedSuccessfully] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,7 +47,7 @@ export function NewsletterSignup() {
       const res = await fetch(`${API_BASE_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: values.email }),
+        body: JSON.stringify({ email: values.email, name: values.name }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -57,6 +58,7 @@ export function NewsletterSignup() {
             "Thank you for subscribing to The Future Human Journal.",
         });
         form.reset();
+        setIsSubmittedSuccessfully(true);
       } else {
         toast({
           title: "Subscription failed",
@@ -74,6 +76,20 @@ export function NewsletterSignup() {
     setIsSubmitting(false);
   }
 
+  if (isSubmittedSuccessfully) {
+    return (
+      <div className="p-8 text-center bg-gray-50 rounded-lg border">
+        <h3 className="text-2xl font-bold text-gray-800">
+          Thank you for subscribing!
+        </h3>
+        <p className="mt-4 text-gray-600">
+          You've been added to our newsletter. Please check your email to
+          confirm your subscription.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -83,7 +99,7 @@ export function NewsletterSignup() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">Name</FormLabel>
+                <FormLabel className="text-sm font-inter">Name</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Jane Doe"
@@ -100,7 +116,7 @@ export function NewsletterSignup() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">Email</FormLabel>
+                <FormLabel className="text-sm font-inter">Email</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="jane@example.com"
@@ -126,11 +142,11 @@ export function NewsletterSignup() {
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel className="text-sm">
+                <FormLabel className="text-sm font-inter">
                   I agree to receive the newsletter and understand I can
                   unsubscribe anytime.
                 </FormLabel>
-                <FormDescription className="text-xs">
+                <FormDescription className="text-xs font-inter">
                   We respect your privacy and will never share your information.
                 </FormDescription>
               </div>
@@ -144,7 +160,7 @@ export function NewsletterSignup() {
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90 relative overflow-hidden group text-sm"
           disabled={isSubmitting}
         >
-          <span className="relative z-10">
+          <span className="relative z-10 font-inter">
             {isSubmitting ? "Subscribing..." : "Subscribe to Newsletter"}
           </span>
           <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>

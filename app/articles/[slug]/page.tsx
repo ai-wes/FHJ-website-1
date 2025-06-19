@@ -18,7 +18,26 @@ function decodeHtmlContent(content: string): string {
       decoded = decodeURIComponent(content);
     }
     
-    // Fix common UTF-8 encoding issues first
+    // Fix HTML entity encoding that appears as literal text (like from API response)
+    decoded = decoded
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&rsquo;/g, "'")
+      .replace(/&lsquo;/g, "'")
+      .replace(/&rdquo;/g, '"')
+      .replace(/&ldquo;/g, '"')
+      .replace(/&mdash;/g, '—')
+      .replace(/&ndash;/g, '–')
+      .replace(/&hellip;/g, '…')
+      .replace(/&copy;/g, '©')
+      .replace(/&reg;/g, '®')
+      .replace(/&trade;/g, '™');
+    
+    // Fix common UTF-8 encoding issues
     decoded = decoded
       .replace(/â€™/g, "'")  // curly apostrophe
       .replace(/â€œ/g, '"')  // left double quote  
@@ -32,21 +51,44 @@ function decodeHtmlContent(content: string): string {
       .replace(/it�s/g, "it's")
       .replace(/that�s/g, "that's")
       .replace(/�/g, "'");   // generic replacement for corrupted apostrophes
-    
-    // Decode HTML entities
+      
+    // Handle escaped HTML that might be double-encoded
     decoded = decoded
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&rsquo;/g, "'")
-      .replace(/&lsquo;/g, "'")
-      .replace(/&rdquo;/g, '"')
-      .replace(/&ldquo;/g, '"')
-      .replace(/&mdash;/g, '—')
-      .replace(/&ndash;/g, '–');
+      .replace(/&lt;br&gt;/g, '<br>')
+      .replace(/&lt;\/br&gt;/g, '</br>')
+      .replace(/&lt;p&gt;/g, '<p>')
+      .replace(/&lt;\/p&gt;/g, '</p>')
+      .replace(/&lt;div/g, '<div')
+      .replace(/&lt;\/div&gt;/g, '</div>')
+      .replace(/&lt;span/g, '<span')
+      .replace(/&lt;\/span&gt;/g, '</span>')
+      .replace(/&lt;h1/g, '<h1')
+      .replace(/&lt;\/h1&gt;/g, '</h1>')
+      .replace(/&lt;h2/g, '<h2')
+      .replace(/&lt;\/h2&gt;/g, '</h2>')
+      .replace(/&lt;h3/g, '<h3')
+      .replace(/&lt;\/h3&gt;/g, '</h3>')
+      .replace(/&lt;h4/g, '<h4')
+      .replace(/&lt;\/h4&gt;/g, '</h4>')
+      .replace(/&lt;ul/g, '<ul')
+      .replace(/&lt;\/ul&gt;/g, '</ul>')
+      .replace(/&lt;ol/g, '<ol')
+      .replace(/&lt;\/ol&gt;/g, '</ol>')
+      .replace(/&lt;li/g, '<li')
+      .replace(/&lt;\/li&gt;/g, '</li>')
+      .replace(/&lt;img/g, '<img')
+      .replace(/&lt;a/g, '<a')
+      .replace(/&lt;\/a&gt;/g, '</a>')
+      .replace(/&lt;strong/g, '<strong')
+      .replace(/&lt;\/strong&gt;/g, '</strong>')
+      .replace(/&lt;em/g, '<em')
+      .replace(/&lt;\/em&gt;/g, '</em>')
+      .replace(/&lt;blockquote/g, '<blockquote')
+      .replace(/&lt;\/blockquote&gt;/g, '</blockquote>')
+      .replace(/&lt;figure/g, '<figure')
+      .replace(/&lt;\/figure&gt;/g, '</figure>')
+      .replace(/&lt;figcaption/g, '<figcaption')
+      .replace(/&lt;\/figcaption&gt;/g, '</figcaption>');
     
     return decoded;
   } catch (error) {
@@ -268,7 +310,6 @@ async function getArticle(slug: string): Promise<NextArticleType | null> {
     return {
       ...flaskArticle,
       _id: flaskArticle.id,
-      image: flaskArticle.cover_image,
       audio_url: audioUrl, // Use the fully constructed URL
     };
   } catch (error) {
@@ -358,10 +399,10 @@ export async function generateMetadata({
         type: "article",
         publishedTime: article.date,
         authors: article.author ? [article.author] : undefined,
-        images: article.image
+        images: article.cover_image
           ? [
               {
-                url: article.image,
+                url: article.cover_image,
                 width: 1200,
                 height: 630,
                 alt: article.title,
@@ -374,7 +415,7 @@ export async function generateMetadata({
         title: article.title,
         description:
           article.excerpt || `Read ${article.title} on Future Human Labs`,
-        images: article.image ? [article.image] : undefined,
+        images: article.cover_image ? [article.cover_image] : undefined,
       },
       keywords: article.category ? [article.category] : undefined,
     };
@@ -401,7 +442,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     "@type": "Article",
     headline: article.title,
     description: article.excerpt,
-    image: article.image,
+    image: article.cover_image,
     datePublished: article.date,
     dateModified: article.date,
     author: {
@@ -487,12 +528,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </header>
 
               {/* Featured Image */}
-              {article.image &&
-                !article.image.includes("%3C") &&
-                !article.image.includes("<cloud_name>") && (
+              {article.cover_image &&
+                !article.cover_image.includes("%3C") &&
+                !article.cover_image.includes("<cloud_name>") && (
                   <div className="mb-8 relative aspect-video rounded-lg overflow-hidden">
                     <Image
-                      src={article.image}
+                      src={article.cover_image}
                       alt={article.title}
                       fill
                       className="object-cover"
@@ -513,14 +554,32 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
               {/* Article Content */}
               {article.content && (
-                <div className="article-content">
-                  {/* Table of Contents */}
-                  <TableOfContents sections={parseArticleContent(article.content)} />
-                  
-                  {/* Parsed Content Sections */}
-                  {parseArticleContent(article.content).map((section, index) => (
-                    <ContentSection key={index} section={section} index={index} />
-                  ))}
+                <div className="article-content prose prose-xs max-w-none dark:prose-invert">
+                  {/* Check if content is HTML or plain text */}
+                  {article.content.includes('<') && article.content.includes('>') ? (
+                    // Render HTML content directly
+                    <div 
+                      dangerouslySetInnerHTML={{ 
+                        __html: decodeHtmlContent(article.content) 
+                      }} 
+                      className="prose prose-xs max-w-none dark:prose-invert 
+                                prose-headings:text-foreground prose-p:text-foreground prose-p:text-xs prose-p:leading-tight
+                                prose-li:text-foreground prose-li:text-xs prose-strong:text-foreground
+                                prose-img:rounded-lg prose-img:shadow-lg
+                                prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground prose-blockquote:text-xs
+                                prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-xs
+                                prose-h1:mb-2 prose-h2:mb-2 prose-h3:mb-1 prose-h4:mb-1
+                                prose-p:mb-2 prose-ul:mb-2 prose-ol:mb-2 prose-li:mb-0"
+                    />
+                  ) : (
+                    // Use existing parsing for plain text content
+                    <>
+                      <TableOfContents sections={parseArticleContent(article.content)} />
+                      {parseArticleContent(article.content).map((section, index) => (
+                        <ContentSection key={index} section={section} index={index} />
+                      ))}
+                    </>
+                  )}
                 </div>
               )}
 
