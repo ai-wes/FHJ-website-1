@@ -1,0 +1,141 @@
+/* src/ContentPostingCalendar.css */
+
+.calendar-container {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.calendar-header {
+  margin-bottom: 20px;
+}
+
+.calendar-header h2 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.event-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.event-form input,
+.event-form select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.event-form input[type="text"] {
+  flex: 2;
+}
+
+.event-form input[type="datetime-local"] {
+  flex: 1;
+}
+
+.event-form select {
+  min-width: 120px;
+}
+
+.event-form button {
+  padding: 8px 16px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.event-form button:hover {
+  background-color: #0052a3;
+}
+
+.event-form input:disabled,
+.event-form select:disabled,
+.event-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.event-form button:disabled:hover::after {
+  content: "Please select a client first";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Calendar Event Styles */
+.rbc-event {
+  padding: 4px 8px !important;
+}
+
+.rbc-event-label {
+  display: none;
+}
+
+
+
+.rbc-event-content {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Calendar Header Styles */
+.rbc-toolbar {
+  margin-bottom: 20px;
+}
+
+.rbc-toolbar button {
+  padding: 8px 12px;
+  background-color: white;
+  border: 1px solid #ddd;
+  color: #333;
+  font-weight: 500;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #f5f5f5;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #0066cc;
+  color: white;
+  border-color: #0066cc;
+}
+
+/* Calendar Grid Styles */
+.rbc-month-view {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.rbc-date-cell {
+  padding: 4px;
+  font-size: 14px;
+}
+
+.rbc-today {
+  background-color: #f0f7ff;
+}
+
+.client-selector-container {
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 300px;
+}
