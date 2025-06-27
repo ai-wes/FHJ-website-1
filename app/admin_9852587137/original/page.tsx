@@ -69,7 +69,9 @@ export default function AdminPage() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showTemplate, setShowTemplate] = useState(false);
   const [showBulkImageUpdate, setShowBulkImageUpdate] = useState(false);
-  const [bulkImageUpdates, setBulkImageUpdates] = useState<{[key: string]: string}>({});
+  const [bulkImageUpdates, setBulkImageUpdates] = useState<{
+    [key: string]: string;
+  }>({});
 
   // Multi-platform posting state
   const [multiTitle, setMultiTitle] = useState("");
@@ -88,18 +90,25 @@ export default function AdminPage() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showScheduler, setShowScheduler] = useState(false);
-  const [selectedArticleForSchedule, setSelectedArticleForSchedule] = useState<Article | null>(null);
+  const [selectedArticleForSchedule, setSelectedArticleForSchedule] =
+    useState<Article | null>(null);
 
   // Platform credentials state
   const [credentials, setCredentials] = useState({
     wordpress: { url: "", username: "", password: "" },
     medium: { token: "" },
     linkedin: { token: "" },
-    twitter: { apiKey: "", apiSecret: "", accessToken: "", accessTokenSecret: "" }
+    twitter: {
+      apiKey: "",
+      apiSecret: "",
+      accessToken: "",
+      accessTokenSecret: "",
+    },
   });
 
   const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "https://fhj-flask-backend-g0k8.onrender.com";
 
   const markdownTemplate = `# [Article Title]
 
@@ -174,21 +183,26 @@ Summarize your key points and provide actionable takeaways.
       const updates = Object.entries(bulkImageUpdates)
         .filter(([id, url]) => url.trim())
         .map(([id, url]) => ({ id, image_url: url.trim() }));
-      
+
       if (updates.length === 0) {
         alert("No images to update");
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/articles/bulk-update-images`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ updates })
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/articles/bulk-update-images`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ updates }),
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Successfully updated ${result.updated_count} articles with images!`);
+        alert(
+          `Successfully updated ${result.updated_count} articles with images!`
+        );
         setBulkImageUpdates({});
         setShowBulkImageUpdate(false);
         await loadArticles(); // Refresh the list
@@ -207,51 +221,54 @@ Summarize your key points and provide actionable takeaways.
     loadNotifications();
     loadCalendarEvents();
   }, []);
-  
+
   // Separate useEffect for scheduled posts check
   useEffect(() => {
     if (calendarEvents.length === 0 || articles.length === 0) return;
-    
+
     // Check for scheduled posts every minute
     const interval = setInterval(() => {
       checkScheduledPosts();
     }, 60000); // 60 seconds
-    
+
     // Initial check
     checkScheduledPosts();
-    
+
     return () => clearInterval(interval);
   }, [calendarEvents, articles]);
-  
+
   const checkScheduledPosts = async () => {
     const now = new Date();
-    const dueEvents = calendarEvents.filter(event => {
-      if (event.type !== 'article' || event.status === 'published') return false;
+    const dueEvents = calendarEvents.filter((event) => {
+      if (event.type !== "article" || event.status === "published")
+        return false;
       const eventDate = new Date(event.scheduled_date);
       return eventDate <= now;
     });
-    
+
     for (const event of dueEvents) {
       // Find the article
-      const article = articles.find(a => a.id === event.articleId);
-      if (article && article.status !== 'published') {
+      const article = articles.find((a) => a.id === event.articleId);
+      if (article && article.status !== "published") {
         // Publish the article
         const updatedArticle = {
           ...article,
-          status: 'published' as const,
-          date: new Date().toISOString().split('T')[0]
+          status: "published" as const,
+          date: new Date().toISOString().split("T")[0],
         };
-        
+
         await handleSaveArticle(updatedArticle);
-        
+
         // Update event status
-        const updatedEvents = calendarEvents.map(e => 
-          e.id === event.id ? { ...e, status: 'published' } : e
+        const updatedEvents = calendarEvents.map((e) =>
+          e.id === event.id ? { ...e, status: "published" } : e
         );
         saveCalendarEvents(updatedEvents);
-        
+
         // Show notification
-        alert(`Article "${article.title}" has been automatically published to ${event.platform}!`);
+        alert(
+          `Article "${article.title}" has been automatically published to ${event.platform}!`
+        );
       }
     }
   };
@@ -282,14 +299,14 @@ Summarize your key points and provide actionable takeaways.
 
   const loadCalendarEvents = () => {
     // Load from localStorage
-    const stored = localStorage.getItem('calendarEvents');
+    const stored = localStorage.getItem("calendarEvents");
     if (stored) {
       setCalendarEvents(JSON.parse(stored));
     }
   };
 
   const saveCalendarEvents = (events: any[]) => {
-    localStorage.setItem('calendarEvents', JSON.stringify(events));
+    localStorage.setItem("calendarEvents", JSON.stringify(events));
     setCalendarEvents(events);
   };
 
@@ -304,12 +321,12 @@ Summarize your key points and provide actionable takeaways.
       title: newEventTitle,
       scheduled_date: newEventDate,
       platform: newEventPlatform,
-      type: "scheduled_post"
+      type: "scheduled_post",
     };
 
     const updatedEvents = [...calendarEvents, newEvent];
     saveCalendarEvents(updatedEvents);
-    
+
     setNewEventTitle("");
     setNewEventDate("");
     alert("Event added successfully!");
@@ -323,21 +340,31 @@ Summarize your key points and provide actionable takeaways.
 
     setIsPosting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/multi-platform/publish`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: multiTitle,
-          content: multiContent,
-          tags: multiTags.split(",").map(tag => tag.trim()).filter(tag => tag),
-          platforms: selectedPlatforms,
-          credentials: credentials
-        })
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/multi-platform/publish`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: multiTitle,
+            content: multiContent,
+            tags: multiTags
+              .split(",")
+              .map((tag) => tag.trim())
+              .filter((tag) => tag),
+            platforms: selectedPlatforms,
+            credentials: credentials,
+          }),
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Post deployed successfully to ${result.successful_platforms?.length || 0} platforms!`);
+        alert(
+          `Post deployed successfully to ${
+            result.successful_platforms?.length || 0
+          } platforms!`
+        );
         // Clear form
         setMultiTitle("");
         setMultiContent("");
@@ -356,9 +383,9 @@ Summarize your key points and provide actionable takeaways.
   };
 
   const handlePlatformToggle = (platform: string) => {
-    setSelectedPlatforms(prev => 
-      prev.includes(platform) 
-        ? prev.filter(p => p !== platform)
+    setSelectedPlatforms((prev) =>
+      prev.includes(platform)
+        ? prev.filter((p) => p !== platform)
         : [...prev, platform]
     );
   };
@@ -534,27 +561,31 @@ Summarize your key points and provide actionable takeaways.
   };
 
   const handleDeleteArticle = async (articleId: string) => {
-    if (!confirm("Are you sure you want to archive this article? (It can be restored later)")) return;
+    if (
+      !confirm(
+        "Are you sure you want to delete this article? This action cannot be undone."
+      )
+    )
+      return;
 
     try {
-      // Since DELETE is not supported, we'll update the status to "archived"
-      const response = await fetch(`${API_BASE_URL}/api/articles/${articleId}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "archived" }),
+      const response = await fetch(`${API_BASE_URL}/articles/${articleId}`, {
+        method: "DELETE",
       });
 
       if (response.ok) {
         await loadArticles();
-        alert("Article archived successfully!");
+        alert("Article deleted successfully!");
       } else {
         const errorText = await response.text();
-        console.error("Failed to archive article:", response.status, errorText);
-        alert(`Failed to archive article. Status: ${response.status}`);
+        console.error("Failed to delete article:", response.status, errorText);
+        alert(`Failed to delete article. Status: ${response.status}`);
       }
     } catch (error) {
-      console.error("Error archiving article:", error);
-      alert("Error archiving article. Please check your connection and try again.");
+      console.error("Error deleting article:", error);
+      alert(
+        "Error deleting article. Please check your connection and try again."
+      );
     }
   };
 
@@ -604,9 +635,7 @@ Summarize your key points and provide actionable takeaways.
     <div className="min-h-screen bg-gray-900">
       <div className="max-w-full px-4 py-2">
         <div className="mb-3">
-          <h1 className="text-xl font-bold text-gray-100">
-            Admin Dashboard
-          </h1>
+          <h1 className="text-xl font-bold text-gray-100">Admin Dashboard</h1>
         </div>
 
         {/* Dashboard Stats */}
@@ -618,7 +647,7 @@ Summarize your key points and provide actionable takeaways.
               </div>
               <div className="text-xs opacity-90">Total Articles</div>
             </div>
-            <div 
+            <div
               className="bg-gradient-to-r from-green-600 to-green-700 rounded p-2 text-white cursor-pointer hover:from-green-700 hover:to-green-800 transition-all"
               onClick={() => setActiveTab("manage")}
               title="View Drafts"
@@ -628,7 +657,7 @@ Summarize your key points and provide actionable takeaways.
               </div>
               <div className="text-xs opacity-90">Drafts</div>
             </div>
-            <div 
+            <div
               className="bg-gradient-to-r from-purple-600 to-purple-700 rounded p-2 text-white cursor-pointer hover:from-purple-700 hover:to-purple-800 transition-all"
               onClick={() => setActiveTab("calendar")}
               title="View Calendar"
@@ -647,32 +676,47 @@ Summarize your key points and provide actionable takeaways.
           </div>
         )}
 
-
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
           className="space-y-2"
         >
           <TabsList className="h-8 bg-gray-800 border border-gray-700">
-            <TabsTrigger value="create" className="text-xs h-7 data-[state=active]:bg-gray-700">
+            <TabsTrigger
+              value="create"
+              className="text-xs h-7 data-[state=active]:bg-gray-700"
+            >
               <Plus className="w-3 h-3 mr-1" />
               Create
             </TabsTrigger>
-            <TabsTrigger value="manage" className="text-xs h-7 data-[state=active]:bg-gray-700">
+            <TabsTrigger
+              value="manage"
+              className="text-xs h-7 data-[state=active]:bg-gray-700"
+            >
               <FileText className="w-3 h-3 mr-1" />
               Manage
             </TabsTrigger>
-            <TabsTrigger value="multi-platform" className="text-xs h-7 data-[state=active]:bg-gray-700">
+            <TabsTrigger
+              value="multi-platform"
+              className="text-xs h-7 data-[state=active]:bg-gray-700"
+            >
               <Upload className="w-3 h-3 mr-1" />
               Multi-Platform
             </TabsTrigger>
-            <TabsTrigger value="calendar" className="text-xs h-7 data-[state=active]:bg-gray-700">
+            <TabsTrigger
+              value="calendar"
+              className="text-xs h-7 data-[state=active]:bg-gray-700"
+            >
               <Calendar className="w-3 h-3 mr-1" />
               Calendar
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="text-xs h-7 data-[state=active]:bg-gray-700">📊 Analytics</TabsTrigger>
+            <TabsTrigger
+              value="analytics"
+              className="text-xs h-7 data-[state=active]:bg-gray-700"
+            >
+              📊 Analytics
+            </TabsTrigger>
           </TabsList>
-
 
           <TabsContent value="create" className="space-y-2">
             {/* Simple HTML Article Creator */}
@@ -735,7 +779,9 @@ Summarize your key points and provide actionable takeaways.
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-medium text-gray-400">Markdown Content</label>
+                    <label className="text-xs font-medium text-gray-400">
+                      Markdown Content
+                    </label>
                     <div className="flex gap-1">
                       <Button
                         type="button"
@@ -757,7 +803,7 @@ Summarize your key points and provide actionable takeaways.
                       </Button>
                     </div>
                   </div>
-                  
+
                   {showTemplate && (
                     <div className="p-2 bg-gray-900 border border-gray-700 rounded mb-1">
                       <pre className="text-xs text-gray-400 whitespace-pre-wrap font-mono max-h-32 overflow-y-auto">
@@ -765,7 +811,7 @@ Summarize your key points and provide actionable takeaways.
                       </pre>
                     </div>
                   )}
-                  
+
                   <Textarea
                     placeholder="Write your article in Markdown format..."
                     className="min-h-[400px] font-mono text-xs bg-gray-700 border-gray-600 text-gray-100"
@@ -804,10 +850,12 @@ Summarize your key points and provide actionable takeaways.
                     onClick={() => {
                       // First save the article as draft
                       if (!title || !markdownContent) {
-                        alert("Please provide title and content before scheduling");
+                        alert(
+                          "Please provide title and content before scheduling"
+                        );
                         return;
                       }
-                      
+
                       const tempArticle: Article = {
                         id: "temp-" + Date.now(),
                         slug: generateSlug(title),
@@ -823,7 +871,7 @@ Summarize your key points and provide actionable takeaways.
                         featured: false,
                         tags: tags,
                       };
-                      
+
                       setSelectedArticleForSchedule(tempArticle);
                       setShowScheduler(true);
                     }}
@@ -861,15 +909,29 @@ Summarize your key points and provide actionable takeaways.
                   Articles ({articles.length})
                 </h3>
                 <div className="flex gap-1">
-                  <Button onClick={loadArticles} variant="ghost" size="sm" className="h-7 px-2">
+                  <Button
+                    onClick={loadArticles}
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2"
+                  >
                     <RefreshCw className="w-3 h-3 mr-1" />
                     Refresh
                   </Button>
-                  <Button size="sm" onClick={() => setActiveTab("create")} className="h-7 px-2">
+                  <Button
+                    size="sm"
+                    onClick={() => setActiveTab("create")}
+                    className="h-7 px-2"
+                  >
                     <Plus className="w-3 h-3 mr-1" />
                     New
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setShowBulkImageUpdate(true)} className="h-7 px-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowBulkImageUpdate(true)}
+                    className="h-7 px-2"
+                  >
                     <Upload className="w-3 h-3 mr-1" />
                     Images
                   </Button>
@@ -957,7 +1019,11 @@ Summarize your key points and provide actionable takeaways.
                           />
 
                           <Input
-                            value={editingArticle.cover_image || editingArticle.image || ""}
+                            value={
+                              editingArticle.cover_image ||
+                              editingArticle.image ||
+                              ""
+                            }
                             onChange={(e) =>
                               setEditingArticle({
                                 ...editingArticle,
@@ -1021,11 +1087,13 @@ Summarize your key points and provide actionable takeaways.
                               <h3 className="text-xs font-semibold text-gray-100 truncate flex-1">
                                 {article.title}
                               </h3>
-                              <span className={`text-xs px-1.5 py-0.5 rounded ${
-                                article.status === "published"
-                                  ? "bg-green-900/50 text-green-400"
-                                  : "bg-gray-700 text-gray-400"
-                              }`}>
+                              <span
+                                className={`text-xs px-1.5 py-0.5 rounded ${
+                                  article.status === "published"
+                                    ? "bg-green-900/50 text-green-400"
+                                    : "bg-gray-700 text-gray-400"
+                                }`}
+                              >
                                 {article.status}
                               </span>
                             </div>
@@ -1034,7 +1102,9 @@ Summarize your key points and provide actionable takeaways.
                             </p>
                             <div className="flex gap-3 text-xs text-gray-500">
                               <span>{article.category}</span>
-                              <span>{new Date(article.date).toLocaleDateString()}</span>
+                              <span>
+                                {new Date(article.date).toLocaleDateString()}
+                              </span>
                               {article.reading_time && (
                                 <span>{article.reading_time}</span>
                               )}
@@ -1050,7 +1120,9 @@ Summarize your key points and provide actionable takeaways.
                                   </span>
                                 ))}
                                 {article.tags.length > 3 && (
-                                  <span className="text-xs text-gray-400">+{article.tags.length - 3}</span>
+                                  <span className="text-xs text-gray-400">
+                                    +{article.tags.length - 3}
+                                  </span>
                                 )}
                               </div>
                             )}
@@ -1107,7 +1179,10 @@ Summarize your key points and provide actionable takeaways.
                                 if (articleId) {
                                   handleDeleteArticle(articleId);
                                 } else {
-                                  console.error("No article ID found:", article);
+                                  console.error(
+                                    "No article ID found:",
+                                    article
+                                  );
                                   alert("Cannot delete article: No ID found");
                                 }
                               }}
@@ -1134,10 +1209,12 @@ Summarize your key points and provide actionable takeaways.
                   <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                     Platform Credentials
                   </h3>
-                  
+
                   {/* WordPress */}
                   <div className="mb-6">
-                    <h4 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300">WordPress</h4>
+                    <h4 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300">
+                      WordPress
+                    </h4>
                     <div className="space-y-2">
                       <Input placeholder="WordPress URL" />
                       <Input placeholder="Username" />
@@ -1147,24 +1224,33 @@ Summarize your key points and provide actionable takeaways.
 
                   {/* Medium */}
                   <div className="mb-6">
-                    <h4 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300">Medium</h4>
+                    <h4 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300">
+                      Medium
+                    </h4>
                     <Input type="password" placeholder="Integration Token" />
                   </div>
 
                   {/* LinkedIn */}
                   <div className="mb-6">
-                    <h4 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300">LinkedIn</h4>
+                    <h4 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300">
+                      LinkedIn
+                    </h4>
                     <Input type="password" placeholder="Access Token" />
                   </div>
 
                   {/* Twitter */}
                   <div className="mb-6">
-                    <h4 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300">Twitter</h4>
+                    <h4 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300">
+                      Twitter
+                    </h4>
                     <div className="space-y-2">
                       <Input type="password" placeholder="API Key" />
                       <Input type="password" placeholder="API Secret" />
                       <Input type="password" placeholder="Access Token" />
-                      <Input type="password" placeholder="Access Token Secret" />
+                      <Input
+                        type="password"
+                        placeholder="Access Token Secret"
+                      />
                     </div>
                   </div>
                 </Card>
@@ -1176,18 +1262,18 @@ Summarize your key points and provide actionable takeaways.
                   <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                     Create Multi-Platform Post
                   </h3>
-                  
+
                   <div className="space-y-4">
                     {/* Title */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Title
                       </label>
-                      <Input 
-                      placeholder="Enter your post title" 
-                      value={multiTitle}
-                      onChange={(e) => setMultiTitle(e.target.value)}
-                    />
+                      <Input
+                        placeholder="Enter your post title"
+                        value={multiTitle}
+                        onChange={(e) => setMultiTitle(e.target.value)}
+                      />
                     </div>
 
                     {/* Content */}
@@ -1195,7 +1281,7 @@ Summarize your key points and provide actionable takeaways.
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Content
                       </label>
-                      <Textarea 
+                      <Textarea
                         placeholder="Write your post content here..."
                         className="min-h-[200px]"
                         value={multiContent}
@@ -1208,8 +1294,8 @@ Summarize your key points and provide actionable takeaways.
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Tags
                       </label>
-                      <Input 
-                        placeholder="e.g., technology, AI, innovation (comma-separated)" 
+                      <Input
+                        placeholder="e.g., technology, AI, innovation (comma-separated)"
                         value={multiTags}
                         onChange={(e) => setMultiTags(e.target.value)}
                       />
@@ -1240,61 +1326,74 @@ Summarize your key points and provide actionable takeaways.
                       </label>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="flex items-center space-x-2">
-                          <input 
-                            type="checkbox" 
-                            id="wordpress" 
-                            className="rounded" 
+                          <input
+                            type="checkbox"
+                            id="wordpress"
+                            className="rounded"
                             checked={selectedPlatforms.includes("wordpress")}
                             onChange={() => handlePlatformToggle("wordpress")}
                           />
-                          <label htmlFor="wordpress" className="text-sm">WordPress</label>
+                          <label htmlFor="wordpress" className="text-sm">
+                            WordPress
+                          </label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <input 
-                            type="checkbox" 
-                            id="medium" 
-                            className="rounded" 
+                          <input
+                            type="checkbox"
+                            id="medium"
+                            className="rounded"
                             checked={selectedPlatforms.includes("medium")}
                             onChange={() => handlePlatformToggle("medium")}
                           />
-                          <label htmlFor="medium" className="text-sm">Medium</label>
+                          <label htmlFor="medium" className="text-sm">
+                            Medium
+                          </label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <input 
-                            type="checkbox" 
-                            id="linkedin" 
-                            className="rounded" 
+                          <input
+                            type="checkbox"
+                            id="linkedin"
+                            className="rounded"
                             checked={selectedPlatforms.includes("linkedin")}
                             onChange={() => handlePlatformToggle("linkedin")}
                           />
-                          <label htmlFor="linkedin" className="text-sm">LinkedIn</label>
+                          <label htmlFor="linkedin" className="text-sm">
+                            LinkedIn
+                          </label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <input 
-                            type="checkbox" 
-                            id="twitter" 
-                            className="rounded" 
+                          <input
+                            type="checkbox"
+                            id="twitter"
+                            className="rounded"
                             checked={selectedPlatforms.includes("twitter")}
                             onChange={() => handlePlatformToggle("twitter")}
                           />
-                          <label htmlFor="twitter" className="text-sm">Twitter</label>
+                          <label htmlFor="twitter" className="text-sm">
+                            Twitter
+                          </label>
                         </div>
                       </div>
                     </div>
 
                     {/* Action Buttons */}
                     <div className="flex gap-4 pt-4">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setShowMultiPreview(!showMultiPreview)}
                         disabled={!multiTitle || !multiContent}
                       >
                         <Eye className="w-4 h-4 mr-2" />
                         {showMultiPreview ? "Hide Preview" : "Preview Post"}
                       </Button>
-                      <Button 
+                      <Button
                         onClick={handleMultiPlatformPost}
-                        disabled={!multiTitle || !multiContent || selectedPlatforms.length === 0 || isPosting}
+                        disabled={
+                          !multiTitle ||
+                          !multiContent ||
+                          selectedPlatforms.length === 0 ||
+                          isPosting
+                        }
                       >
                         <Upload className="w-4 h-4 mr-2" />
                         {isPosting ? "Deploying..." : "Deploy Post"}
@@ -1309,16 +1408,22 @@ Summarize your key points and provide actionable takeaways.
                         Preview for {selectedPlatforms.join(", ")} platforms:
                       </h4>
                       <div className="space-y-3">
-                        <div className="font-semibold text-lg">{multiTitle}</div>
+                        <div className="font-semibold text-lg">
+                          {multiTitle}
+                        </div>
                         <div className="prose prose-sm max-w-none dark:prose-invert">
-                          {multiContent.split('\n').map((paragraph, index) => (
+                          {multiContent.split("\n").map((paragraph, index) => (
                             <p key={index}>{paragraph}</p>
                           ))}
                         </div>
                         {multiTags && (
                           <div className="flex gap-1 flex-wrap">
                             {multiTags.split(",").map((tag, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="text-xs"
+                              >
                                 #{tag.trim()}
                               </Badge>
                             ))}
@@ -1342,19 +1447,19 @@ Summarize your key points and provide actionable takeaways.
                     Add New Event
                   </h4>
                   <div className="space-y-2">
-                    <Input 
-                      placeholder="Event Title" 
+                    <Input
+                      placeholder="Event Title"
                       value={newEventTitle}
                       onChange={(e) => setNewEventTitle(e.target.value)}
                       className="h-8 text-xs bg-gray-700 border-gray-600 text-gray-100"
                     />
-                    <Input 
-                      type="datetime-local" 
+                    <Input
+                      type="datetime-local"
                       value={newEventDate}
                       onChange={(e) => setNewEventDate(e.target.value)}
                       className="h-8 text-xs bg-gray-700 border-gray-600 text-gray-100"
                     />
-                    <select 
+                    <select
                       className="w-full h-8 px-2 py-1 text-xs border rounded-md bg-gray-700 border-gray-600 text-gray-100"
                       value={newEventPlatform}
                       onChange={(e) => setNewEventPlatform(e.target.value)}
@@ -1364,7 +1469,7 @@ Summarize your key points and provide actionable takeaways.
                       <option value="LinkedIn">LinkedIn</option>
                       <option value="Twitter">Twitter</option>
                     </select>
-                    <Button 
+                    <Button
                       className="w-full h-8 text-xs bg-blue-600 hover:bg-blue-700"
                       onClick={handleAddCalendarEvent}
                       disabled={!newEventTitle || !newEventDate}
@@ -1426,7 +1531,10 @@ Summarize your key points and provide actionable takeaways.
                         <ChevronDown className="w-4 h-4 rotate-90" />
                       </Button>
                       <h3 className="text-sm font-semibold text-gray-100">
-                        {new Date(currentYear, currentMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        {new Date(currentYear, currentMonth).toLocaleDateString(
+                          "en-US",
+                          { month: "long", year: "numeric" }
+                        )}
                       </h3>
                       <Button
                         size="sm"
@@ -1461,11 +1569,16 @@ Summarize your key points and provide actionable takeaways.
                   <div className="border border-gray-700 rounded overflow-hidden">
                     {/* Calendar Header */}
                     <div className="grid grid-cols-7 bg-gray-900">
-                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                        <div key={day} className="p-2 text-center text-xs font-medium text-gray-400">
-                          {day}
-                        </div>
-                      ))}
+                      {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                        (day) => (
+                          <div
+                            key={day}
+                            className="p-2 text-center text-xs font-medium text-gray-400"
+                          >
+                            {day}
+                          </div>
+                        )
+                      )}
                     </div>
 
                     {/* Calendar Body */}
@@ -1473,89 +1586,129 @@ Summarize your key points and provide actionable takeaways.
                       {(() => {
                         // Get first day of month
                         const firstDay = new Date(currentYear, currentMonth, 1);
-                        const lastDay = new Date(currentYear, currentMonth + 1, 0);
-                        const prevLastDay = new Date(currentYear, currentMonth, 0);
-                        
+                        const lastDay = new Date(
+                          currentYear,
+                          currentMonth + 1,
+                          0
+                        );
+                        const prevLastDay = new Date(
+                          currentYear,
+                          currentMonth,
+                          0
+                        );
+
                         const startDate = firstDay.getDay();
                         const endDate = lastDay.getDate();
                         const prevEndDate = prevLastDay.getDate();
-                        
+
                         const days = [];
-                        
+
                         // Previous month days
                         for (let i = startDate - 1; i >= 0; i--) {
                           days.push({
                             day: prevEndDate - i,
                             isCurrentMonth: false,
-                            date: new Date(currentYear, currentMonth - 1, prevEndDate - i)
+                            date: new Date(
+                              currentYear,
+                              currentMonth - 1,
+                              prevEndDate - i
+                            ),
                           });
                         }
-                        
+
                         // Current month days
                         for (let i = 1; i <= endDate; i++) {
                           days.push({
                             day: i,
                             isCurrentMonth: true,
-                            date: new Date(currentYear, currentMonth, i)
+                            date: new Date(currentYear, currentMonth, i),
                           });
                         }
-                        
+
                         // Next month days
                         const remainingDays = 35 - days.length;
                         for (let i = 1; i <= remainingDays; i++) {
                           days.push({
                             day: i,
                             isCurrentMonth: false,
-                            date: new Date(currentYear, currentMonth + 1, i)
+                            date: new Date(currentYear, currentMonth + 1, i),
                           });
                         }
-                        
+
                         return days.map((dayInfo, i) => {
-                          const isToday = 
+                          const isToday =
                             dayInfo.isCurrentMonth &&
-                            dayInfo.date.toDateString() === new Date().toDateString();
-                          
+                            dayInfo.date.toDateString() ===
+                              new Date().toDateString();
+
                           // Find events for this date
-                          const dayEvents = calendarEvents.filter(event => {
+                          const dayEvents = calendarEvents.filter((event) => {
                             const eventDate = new Date(event.scheduled_date);
-                            return eventDate.toDateString() === dayInfo.date.toDateString();
+                            return (
+                              eventDate.toDateString() ===
+                              dayInfo.date.toDateString()
+                            );
                           });
-                          
+
                           return (
-                            <div 
-                              key={i} 
+                            <div
+                              key={i}
                               className={`min-h-[80px] p-1 border-b border-r border-gray-700 cursor-pointer hover:bg-gray-700/50 ${
-                                !dayInfo.isCurrentMonth ? 'bg-gray-900/50' : 'bg-gray-800'
-                              } ${isToday ? 'bg-blue-900/20' : ''}`}
+                                !dayInfo.isCurrentMonth
+                                  ? "bg-gray-900/50"
+                                  : "bg-gray-800"
+                              } ${isToday ? "bg-blue-900/20" : ""}`}
                               onClick={() => {
                                 if (dayInfo.isCurrentMonth) {
                                   setSelectedDate(dayInfo.date);
-                                  const dateStr = dayInfo.date.toISOString().slice(0, 16);
+                                  const dateStr = dayInfo.date
+                                    .toISOString()
+                                    .slice(0, 16);
                                   setNewEventDate(dateStr);
                                 }
                               }}
                             >
-                              <div className={`text-xs mb-1 ${
-                                !dayInfo.isCurrentMonth ? 'text-gray-600' : 'text-gray-300'
-                              } ${isToday ? 'font-bold text-blue-400' : ''}`}>
+                              <div
+                                className={`text-xs mb-1 ${
+                                  !dayInfo.isCurrentMonth
+                                    ? "text-gray-600"
+                                    : "text-gray-300"
+                                } ${isToday ? "font-bold text-blue-400" : ""}`}
+                              >
                                 {dayInfo.day}
                               </div>
-                              
+
                               {/* Events */}
                               <div className="space-y-1">
                                 {dayEvents.slice(0, 2).map((event, idx) => (
                                   <div
                                     key={idx}
                                     className={`text-xs p-0.5 rounded truncate cursor-pointer ${
-                                      event.platform === 'Website' ? 'bg-yellow-600/20 text-yellow-400' :
-                                      event.platform === 'WordPress' ? 'bg-blue-600/20 text-blue-400' :
-                                      event.platform === 'Medium' ? 'bg-green-600/20 text-green-400' :
-                                      event.platform === 'LinkedIn' ? 'bg-blue-700/20 text-blue-400' :
-                                      'bg-sky-600/20 text-sky-400'
-                                    } ${event.type === 'article' ? 'border border-gray-600' : ''}`}
-                                    title={`${event.title} - ${event.platform} ${event.type === 'article' ? '(Article)' : ''}`}
+                                      event.platform === "Website"
+                                        ? "bg-yellow-600/20 text-yellow-400"
+                                        : event.platform === "WordPress"
+                                        ? "bg-blue-600/20 text-blue-400"
+                                        : event.platform === "Medium"
+                                        ? "bg-green-600/20 text-green-400"
+                                        : event.platform === "LinkedIn"
+                                        ? "bg-blue-700/20 text-blue-400"
+                                        : "bg-sky-600/20 text-sky-400"
+                                    } ${
+                                      event.type === "article"
+                                        ? "border border-gray-600"
+                                        : ""
+                                    }`}
+                                    title={`${event.title} - ${
+                                      event.platform
+                                    } ${
+                                      event.type === "article"
+                                        ? "(Article)"
+                                        : ""
+                                    }`}
                                   >
-                                    {event.type === 'article' && <span className="mr-1">📄</span>}
+                                    {event.type === "article" && (
+                                      <span className="mr-1">📄</span>
+                                    )}
                                     {event.title}
                                   </div>
                                 ))}
@@ -1580,32 +1733,56 @@ Summarize your key points and provide actionable takeaways.
                       </h4>
                       <div className="space-y-2">
                         {calendarEvents
-                          .filter(event => {
+                          .filter((event) => {
                             const eventDate = new Date(event.scheduled_date);
-                            return eventDate.toDateString() === selectedDate.toDateString();
+                            return (
+                              eventDate.toDateString() ===
+                              selectedDate.toDateString()
+                            );
                           })
                           .map((event, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-xs">
+                            <div
+                              key={idx}
+                              className="flex justify-between items-center text-xs"
+                            >
                               <div>
-                                <span className={`inline-block w-2 h-2 rounded mr-2 ${
-                                  event.platform === 'WordPress' ? 'bg-blue-500' :
-                                  event.platform === 'Medium' ? 'bg-green-500' :
-                                  event.platform === 'LinkedIn' ? 'bg-blue-700' :
-                                  'bg-sky-400'
-                                }`}></span>
-                                <span className="text-gray-300">{event.title}</span>
-                                <span className="text-gray-500 ml-2">({event.platform})</span>
+                                <span
+                                  className={`inline-block w-2 h-2 rounded mr-2 ${
+                                    event.platform === "WordPress"
+                                      ? "bg-blue-500"
+                                      : event.platform === "Medium"
+                                      ? "bg-green-500"
+                                      : event.platform === "LinkedIn"
+                                      ? "bg-blue-700"
+                                      : "bg-sky-400"
+                                  }`}
+                                ></span>
+                                <span className="text-gray-300">
+                                  {event.title}
+                                </span>
+                                <span className="text-gray-500 ml-2">
+                                  ({event.platform})
+                                </span>
                               </div>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => {
-                                  const eventToDelete = calendarEvents.filter(e => {
-                                    const eventDate = new Date(e.scheduled_date);
-                                    return eventDate.toDateString() === selectedDate.toDateString();
-                                  })[idx];
-                                  
-                                  const updatedEvents = calendarEvents.filter(e => e.id !== eventToDelete.id);
+                                  const eventToDelete = calendarEvents.filter(
+                                    (e) => {
+                                      const eventDate = new Date(
+                                        e.scheduled_date
+                                      );
+                                      return (
+                                        eventDate.toDateString() ===
+                                        selectedDate.toDateString()
+                                      );
+                                    }
+                                  )[idx];
+
+                                  const updatedEvents = calendarEvents.filter(
+                                    (e) => e.id !== eventToDelete.id
+                                  );
                                   saveCalendarEvents(updatedEvents);
                                 }}
                                 className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
@@ -1614,11 +1791,16 @@ Summarize your key points and provide actionable takeaways.
                               </Button>
                             </div>
                           ))}
-                        {calendarEvents.filter(event => {
+                        {calendarEvents.filter((event) => {
                           const eventDate = new Date(event.scheduled_date);
-                          return eventDate.toDateString() === selectedDate.toDateString();
+                          return (
+                            eventDate.toDateString() ===
+                            selectedDate.toDateString()
+                          );
                         }).length === 0 && (
-                          <p className="text-xs text-gray-500">No events scheduled</p>
+                          <p className="text-xs text-gray-500">
+                            No events scheduled
+                          </p>
                         )}
                       </div>
                     </div>
@@ -1722,34 +1904,44 @@ Summarize your key points and provide actionable takeaways.
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Add Images to Existing Articles</h3>
-                <Button variant="ghost" onClick={() => setShowBulkImageUpdate(false)}>
+                <h3 className="text-lg font-semibold">
+                  Add Images to Existing Articles
+                </h3>
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowBulkImageUpdate(false)}
+                >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-              
+
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Add featured images to articles that don't have them yet. Paste image URLs from Unsplash, Pixabay, or other sources.
+                Add featured images to articles that don't have them yet. Paste
+                image URLs from Unsplash, Pixabay, or other sources.
               </p>
 
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {articles
-                  .filter(article => !article.image && !article.cover_image)
+                  .filter((article) => !article.image && !article.cover_image)
                   .map((article) => (
                     <Card key={article.id} className="p-4">
                       <div className="flex items-center gap-4">
                         <div className="flex-1">
                           <h4 className="font-medium">{article.title}</h4>
-                          <p className="text-sm text-gray-500">{article.category} • {article.author}</p>
+                          <p className="text-sm text-gray-500">
+                            {article.category} • {article.author}
+                          </p>
                         </div>
                         <div className="flex-1">
                           <Input
                             placeholder="https://images.unsplash.com/photo-..."
                             value={bulkImageUpdates[article.id!] || ""}
-                            onChange={(e) => setBulkImageUpdates({
-                              ...bulkImageUpdates,
-                              [article.id!]: e.target.value
-                            })}
+                            onChange={(e) =>
+                              setBulkImageUpdates({
+                                ...bulkImageUpdates,
+                                [article.id!]: e.target.value,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -1757,14 +1949,21 @@ Summarize your key points and provide actionable takeaways.
                   ))}
               </div>
 
-              {articles.filter(article => !article.image && !article.cover_image).length === 0 && (
+              {articles.filter(
+                (article) => !article.image && !article.cover_image
+              ).length === 0 && (
                 <Card className="p-8 text-center">
-                  <p className="text-gray-500">All articles already have images! 🎉</p>
+                  <p className="text-gray-500">
+                    All articles already have images! 🎉
+                  </p>
                 </Card>
               )}
 
               <div className="flex justify-end gap-2 mt-6">
-                <Button variant="outline" onClick={() => setShowBulkImageUpdate(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowBulkImageUpdate(false)}
+                >
                   Cancel
                 </Button>
                 <Button onClick={handleBulkImageUpdate}>
@@ -1781,9 +1980,11 @@ Summarize your key points and provide actionable takeaways.
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-gray-800 border border-gray-700 p-6 rounded-lg max-w-md w-full mx-4">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-100">Schedule Post</h3>
-                <Button 
-                  variant="ghost" 
+                <h3 className="text-lg font-semibold text-gray-100">
+                  Schedule Post
+                </h3>
+                <Button
+                  variant="ghost"
                   onClick={() => {
                     setShowScheduler(false);
                     setSelectedArticleForSchedule(null);
@@ -1793,20 +1994,23 @@ Summarize your key points and provide actionable takeaways.
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="bg-gray-900 border border-gray-700 rounded p-3">
                   <h4 className="text-sm font-semibold text-gray-300 mb-1">
                     {selectedArticleForSchedule.title}
                   </h4>
                   <p className="text-xs text-gray-500">
-                    By {selectedArticleForSchedule.author} • {selectedArticleForSchedule.category}
+                    By {selectedArticleForSchedule.author} •{" "}
+                    {selectedArticleForSchedule.category}
                   </p>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs text-gray-400 mb-1 block">Schedule Date & Time</label>
+                    <label className="text-xs text-gray-400 mb-1 block">
+                      Schedule Date & Time
+                    </label>
                     <Input
                       type="datetime-local"
                       value={newEventDate}
@@ -1817,7 +2021,9 @@ Summarize your key points and provide actionable takeaways.
                   </div>
 
                   <div>
-                    <label className="text-xs text-gray-400 mb-1 block">Platform</label>
+                    <label className="text-xs text-gray-400 mb-1 block">
+                      Platform
+                    </label>
                     <select
                       className="w-full h-9 px-2 py-1 text-sm border rounded-md bg-gray-700 border-gray-600 text-gray-100"
                       value={newEventPlatform}
@@ -1832,28 +2038,45 @@ Summarize your key points and provide actionable takeaways.
                   </div>
 
                   <div className="bg-gray-900 border border-gray-700 rounded p-3 space-y-2">
-                    <h5 className="text-xs font-semibold text-gray-400">Scheduled Posts for this Article:</h5>
+                    <h5 className="text-xs font-semibold text-gray-400">
+                      Scheduled Posts for this Article:
+                    </h5>
                     {calendarEvents
-                      .filter(event => event.articleId === selectedArticleForSchedule.id)
+                      .filter(
+                        (event) =>
+                          event.articleId === selectedArticleForSchedule.id
+                      )
                       .map((event, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-xs">
+                        <div
+                          key={idx}
+                          className="flex justify-between items-center text-xs"
+                        >
                           <div>
-                            <span className={`inline-block w-2 h-2 rounded mr-2 ${
-                              event.platform === 'Website' ? 'bg-yellow-500' :
-                              event.platform === 'WordPress' ? 'bg-blue-500' :
-                              event.platform === 'Medium' ? 'bg-green-500' :
-                              event.platform === 'LinkedIn' ? 'bg-blue-700' :
-                              'bg-sky-400'
-                            }`}></span>
+                            <span
+                              className={`inline-block w-2 h-2 rounded mr-2 ${
+                                event.platform === "Website"
+                                  ? "bg-yellow-500"
+                                  : event.platform === "WordPress"
+                                  ? "bg-blue-500"
+                                  : event.platform === "Medium"
+                                  ? "bg-green-500"
+                                  : event.platform === "LinkedIn"
+                                  ? "bg-blue-700"
+                                  : "bg-sky-400"
+                              }`}
+                            ></span>
                             <span className="text-gray-300">
-                              {new Date(event.scheduled_date).toLocaleString()} - {event.platform}
+                              {new Date(event.scheduled_date).toLocaleString()}{" "}
+                              - {event.platform}
                             </span>
                           </div>
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => {
-                              const updatedEvents = calendarEvents.filter(e => e.id !== event.id);
+                              const updatedEvents = calendarEvents.filter(
+                                (e) => e.id !== event.id
+                              );
                               saveCalendarEvents(updatedEvents);
                             }}
                             className="h-5 w-5 p-0 text-red-400 hover:text-red-300"
@@ -1862,8 +2085,13 @@ Summarize your key points and provide actionable takeaways.
                           </Button>
                         </div>
                       ))}
-                    {calendarEvents.filter(event => event.articleId === selectedArticleForSchedule.id).length === 0 && (
-                      <p className="text-xs text-gray-500">No scheduled posts for this article</p>
+                    {calendarEvents.filter(
+                      (event) =>
+                        event.articleId === selectedArticleForSchedule.id
+                    ).length === 0 && (
+                      <p className="text-xs text-gray-500">
+                        No scheduled posts for this article
+                      </p>
                     )}
                   </div>
                 </div>
@@ -1896,20 +2124,23 @@ Summarize your key points and provide actionable takeaways.
                           status: "scheduled" as const,
                           content_type: "blog_post",
                           priority: "medium",
-                          workflow_stage: "scheduled"
+                          workflow_stage: "scheduled",
                         };
-                        
+
                         try {
-                          const response = await fetch(`${API_BASE_URL}/articles`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(articleData),
-                          });
-                          
+                          const response = await fetch(
+                            `${API_BASE_URL}/articles`,
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify(articleData),
+                            }
+                          );
+
                           if (response.ok) {
                             const savedArticle = await response.json();
                             articleId = savedArticle.id || savedArticle._id;
-                            
+
                             // Clear the form
                             setTitle("");
                             setMarkdownContent("");
@@ -1917,13 +2148,19 @@ Summarize your key points and provide actionable takeaways.
                             setFeaturedImage("");
                             setTags([]);
                             setShowPreview(false);
-                            
+
                             // Reload articles
                             await loadArticles();
                           } else {
                             const errorText = await response.text();
-                            console.error("Failed to save article:", response.status, errorText);
-                            alert(`Failed to save article before scheduling. Status: ${response.status}`);
+                            console.error(
+                              "Failed to save article:",
+                              response.status,
+                              errorText
+                            );
+                            alert(
+                              `Failed to save article before scheduling. Status: ${response.status}`
+                            );
                             return;
                           }
                         } catch (error) {
@@ -1932,7 +2169,7 @@ Summarize your key points and provide actionable takeaways.
                           return;
                         }
                       }
-                      
+
                       const newEvent = {
                         id: Date.now().toString(),
                         title: selectedArticleForSchedule.title,
@@ -1940,12 +2177,12 @@ Summarize your key points and provide actionable takeaways.
                         platform: newEventPlatform,
                         type: "article",
                         articleId: articleId,
-                        status: "scheduled"
+                        status: "scheduled",
                       };
 
                       const updatedEvents = [...calendarEvents, newEvent];
                       saveCalendarEvents(updatedEvents);
-                      
+
                       setNewEventDate("");
                       setShowScheduler(false);
                       setSelectedArticleForSchedule(null);
