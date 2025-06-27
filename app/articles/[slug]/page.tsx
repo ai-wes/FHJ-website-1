@@ -90,7 +90,7 @@ function decodeHtmlContent(content: string): string {
       .replace(/&lt;figure/g, "<figure")
       .replace(/&lt;\/figure&gt;/g, "</figure>")
       .replace(/&lt;figcaption/g, "<figcaption")
-      .replace(/&lt;\/figcaption&gt;/g, "</figcaption>");
+      .replace(/&lt;\/figcaption&gt;/g, "</figcaption>")
 
     return decoded;
   } catch (error) {
