@@ -610,15 +610,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   article.content.includes("```") ? (
                     // Render Markdown content
                     <ReactMarkdown
-                      className="prose prose-xs max-w-none 
-                                prose-headings:text-black prose-p:text-black prose-p:text-xs prose-p:leading-tight
-                                prose-li:text-black prose-li:text-xs prose-strong:text-black
-                                prose-img:rounded-lg prose-img:shadow-lg
-                                prose-blockquote:border-l-gray-400 prose-blockquote:text-gray-700 prose-blockquote:text-xs
-                                prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-xs
-                                prose-h1:mb-2 prose-h2:mb-2 prose-h3:mb-1 prose-h4:mb-1
-                                prose-p:mb-2 prose-ul:mb-2 prose-ol:mb-2 prose-li:mb-0
-                                prose-code:text-xs prose-pre:bg-gray-900 prose-pre:text-gray-100"
+                      className="prose prose-xs max-w-none prose-headings:text-black prose-h2:text-black prose-h3:text-black prose-h4:text-black prose-p:text-black prose-p:text-xs prose-p:leading-tight prose-li:text-black prose-li:text-xs prose-strong:text-black prose-img:rounded-lg prose-img:shadow-lg prose-blockquote:border-l-gray-400 prose-blockquote:text-gray-700 prose-blockquote:text-xs prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-xs prose-h1:mb-2 prose-h2:mb-2 prose-h3:mb-1 prose-h4:mb-1 prose-p:mb-2 prose-ul:mb-2 prose-ol:mb-2 prose-li:mb-0 prose-code:text-xs prose-pre:bg-gray-900 prose-pre:text-gray-100"
                       remarkPlugins={[remarkGfm]}
                     >
                       {article.content}
