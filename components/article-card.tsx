@@ -47,7 +47,7 @@ export function ArticleCard({
     coverImage && isValidUrl(coverImage) ? coverImage : "/placeholder.svg";
 
   return (
-    <Card className="tech-card overflow-hidden transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-white via-slate-50 to-blue-50 border border-slate-200/50 backdrop-blur-sm hover:scale-[1.02]">
+    <Card className="tech-card overflow-hidden transition-all duration-300 hover:shadow-xl bg-white/70 border border-white/30 backdrop-blur-md hover:scale-[1.02]">
       <div className="h-24 sm:h-28 md:h-32 overflow-hidden">
         <Image
           src={imageSrc}

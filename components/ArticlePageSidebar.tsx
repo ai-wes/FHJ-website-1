@@ -42,9 +42,9 @@ export default function ArticlePageSidebar({ article }: ArticlePageSidebarProps)
   return (
     <aside className="space-y-6">
       {/* Author Info */}
-      <Card className="border-primary/10 bg-white/10 dark:bg-white/5">
+      <Card className="border-white/30 bg-white/70 backdrop-blur-md">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">About the Author</CardTitle>
+          <CardTitle className="text-base text-black">About the Author</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-3">
@@ -55,23 +55,23 @@ export default function ArticlePageSidebar({ article }: ArticlePageSidebarProps)
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="font-medium">{article.author || "Future Human Labs"}</h3>
-              <p className="text-sm text-muted-foreground">Author</p>
+              <h3 className="font-medium text-sm text-black">{article.author || "Future Human Labs"}</h3>
+              <p className="text-xs text-gray-600">Author</p>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-gray-600">
             Exploring the intersection of technology, humanity, and the future.
           </p>
         </CardContent>
       </Card>
 
       {/* Article Info */}
-      <Card className="border-primary/10 bg-white/10 dark:bg-white/5">
+      <Card className="border-white/30 bg-white/70 backdrop-blur-md">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Article Details</CardTitle>
+          <CardTitle className="text-base text-black">Article Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <div className="flex items-center space-x-2 text-xs text-gray-600">
             <Calendar className="h-4 w-4" />
             <span>{new Date(article.date).toLocaleDateString("en-US", {
               year: "numeric",
@@ -80,15 +80,15 @@ export default function ArticlePageSidebar({ article }: ArticlePageSidebarProps)
             })}</span>
           </div>
           {article.reading_time && (
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex items-center space-x-2 text-xs text-gray-600">
               <Clock className="h-4 w-4" />
               <span>{article.reading_time}</span>
             </div>
           )}
           {article.category && (
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex items-center space-x-2 text-xs text-gray-600">
               <Tag className="h-4 w-4" />
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs text-black">
                 {article.category}
               </Badge>
             </div>
@@ -97,9 +97,9 @@ export default function ArticlePageSidebar({ article }: ArticlePageSidebarProps)
       </Card>
 
       {/* Popular Tags */}
-      <Card className="border-primary/10 bg-white/10 dark:bg-white/5">
+      <Card className="border-white/30 bg-white/70 backdrop-blur-md">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Popular Tags</CardTitle>
+          <CardTitle className="text-base text-black">Popular Tags</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
@@ -107,7 +107,7 @@ export default function ArticlePageSidebar({ article }: ArticlePageSidebarProps)
               <Badge
                 key={tag}
                 variant="outline"
-                className="cursor-pointer border-primary/20 text-xs hover:border-primary hover:bg-primary/10 hover:text-primary text-muted-foreground"
+                className="cursor-pointer border-gray-300 text-xs hover:border-primary hover:bg-primary/10 hover:text-primary text-gray-700"
               >
                 <Tag className="mr-1 h-2 w-2" />
                 {tag}
@@ -118,16 +118,16 @@ export default function ArticlePageSidebar({ article }: ArticlePageSidebarProps)
       </Card>
 
       {/* Topics */}
-      <Card className="border-primary/10 bg-white/10 dark:bg-white/5">
+      <Card className="border-white/30 bg-white/70 backdrop-blur-md">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Explore Topics</CardTitle>
+          <CardTitle className="text-base text-black">Explore Topics</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             {topics.map((topic) => (
               <div
                 key={topic}
-                className="cursor-pointer rounded-md px-3 py-2 text-sm transition-colors hover:bg-primary/10 hover:text-primary text-muted-foreground"
+                className="cursor-pointer rounded-md px-3 py-2 text-xs transition-colors hover:bg-primary/10 hover:text-primary text-gray-700"
               >
                 {topic}
               </div>

@@ -2,102 +2,104 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import type { Article as NextArticleType } from "@/lib/mongodb";
-import ArticlePageSidebar from "@/components/ArticlePageSidebar";
+import ArticleSidebar from "@/components/ArticleSidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, List } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // Helper function to properly decode HTML content and fix encoding issues
 function decodeHtmlContent(content: string): string {
   try {
     // First, try to decode if it's URL encoded
     let decoded = content;
-    
+
     // Check if content appears to be URL encoded
-    if (content.includes('%') && content.includes('%3C')) {
+    if (content.includes("%") && content.includes("%3C")) {
       decoded = decodeURIComponent(content);
     }
-    
+
     // Fix HTML entity encoding that appears as literal text (like from API response)
     decoded = decoded
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, ' ')
+      .replace(/&nbsp;/g, " ")
       .replace(/&rsquo;/g, "'")
       .replace(/&lsquo;/g, "'")
       .replace(/&rdquo;/g, '"')
       .replace(/&ldquo;/g, '"')
-      .replace(/&mdash;/g, '—')
-      .replace(/&ndash;/g, '–')
-      .replace(/&hellip;/g, '…')
-      .replace(/&copy;/g, '©')
-      .replace(/&reg;/g, '®')
-      .replace(/&trade;/g, '™');
-    
+      .replace(/&mdash;/g, "—")
+      .replace(/&ndash;/g, "–")
+      .replace(/&hellip;/g, "…")
+      .replace(/&copy;/g, "©")
+      .replace(/&reg;/g, "®")
+      .replace(/&trade;/g, "™");
+
     // Fix common UTF-8 encoding issues
     decoded = decoded
-      .replace(/â€™/g, "'")  // curly apostrophe
-      .replace(/â€œ/g, '"')  // left double quote  
-      .replace(/â€/g, '"')   // right double quote
-      .replace(/â€"/g, '—')  // em dash
-      .replace(/â€"/g, '–')  // en dash
-      .replace(/they�re/g, "they're")
-      .replace(/don�t/g, "don't")
-      .replace(/can�t/g, "can't")
-      .replace(/won�t/g, "won't")
-      .replace(/it�s/g, "it's")
-      .replace(/that�s/g, "that's")
-      .replace(/�/g, "'");   // generic replacement for corrupted apostrophes
-      
+      .replace(/â€™/g, "'") // curly apostrophe
+      .replace(/â€œ/g, '"') // left double quote
+      .replace(/â€/g, '"') // right double quote
+      .replace(/â€"/g, "—") // em dash
+      .replace(/â€"/g, "–") // en dash
+      .replace(/they're/g, "they're")
+      .replace(/don't/g, "don't")
+      .replace(/can't/g, "can't")
+      .replace(/won't/g, "won't")
+      .replace(/it's/g, "it's")
+      .replace(/that's/g, "that's")
+      .replace(//g, "'"); // generic replacement for corrupted apostrophes
+
     // Handle escaped HTML that might be double-encoded
     decoded = decoded
-      .replace(/&lt;br&gt;/g, '<br>')
-      .replace(/&lt;\/br&gt;/g, '</br>')
-      .replace(/&lt;p&gt;/g, '<p>')
-      .replace(/&lt;\/p&gt;/g, '</p>')
-      .replace(/&lt;div/g, '<div')
-      .replace(/&lt;\/div&gt;/g, '</div>')
-      .replace(/&lt;span/g, '<span')
-      .replace(/&lt;\/span&gt;/g, '</span>')
-      .replace(/&lt;h1/g, '<h1')
-      .replace(/&lt;\/h1&gt;/g, '</h1>')
-      .replace(/&lt;h2/g, '<h2')
-      .replace(/&lt;\/h2&gt;/g, '</h2>')
-      .replace(/&lt;h3/g, '<h3')
-      .replace(/&lt;\/h3&gt;/g, '</h3>')
-      .replace(/&lt;h4/g, '<h4')
-      .replace(/&lt;\/h4&gt;/g, '</h4>')
-      .replace(/&lt;ul/g, '<ul')
-      .replace(/&lt;\/ul&gt;/g, '</ul>')
-      .replace(/&lt;ol/g, '<ol')
-      .replace(/&lt;\/ol&gt;/g, '</ol>')
-      .replace(/&lt;li/g, '<li')
-      .replace(/&lt;\/li&gt;/g, '</li>')
-      .replace(/&lt;img/g, '<img')
-      .replace(/&lt;a/g, '<a')
-      .replace(/&lt;\/a&gt;/g, '</a>')
-      .replace(/&lt;strong/g, '<strong')
-      .replace(/&lt;\/strong&gt;/g, '</strong>')
-      .replace(/&lt;em/g, '<em')
-      .replace(/&lt;\/em&gt;/g, '</em>')
-      .replace(/&lt;blockquote/g, '<blockquote')
-      .replace(/&lt;\/blockquote&gt;/g, '</blockquote>')
-      .replace(/&lt;figure/g, '<figure')
-      .replace(/&lt;\/figure&gt;/g, '</figure>')
-      .replace(/&lt;figcaption/g, '<figcaption')
-      .replace(/&lt;\/figcaption&gt;/g, '</figcaption>');
-    
+      .replace(/&lt;br&gt;/g, "<br>")
+      .replace(/&lt;\/br&gt;/g, "</br>")
+      .replace(/&lt;p&gt;/g, "<p>")
+      .replace(/&lt;\/p&gt;/g, "</p>")
+      .replace(/&lt;div/g, "<div")
+      .replace(/&lt;\/div&gt;/g, "</div>")
+      .replace(/&lt;span/g, "<span")
+      .replace(/&lt;\/span&gt;/g, "</span>")
+      .replace(/&lt;h1/g, "<h1")
+      .replace(/&lt;\/h1&gt;/g, "</h1>")
+      .replace(/&lt;h2/g, "<h2")
+      .replace(/&lt;\/h2&gt;/g, "</h2>")
+      .replace(/&lt;h3/g, "<h3")
+      .replace(/&lt;\/h3&gt;/g, "</h3>")
+      .replace(/&lt;h4/g, "<h4")
+      .replace(/&lt;\/h4&gt;/g, "</h4>")
+      .replace(/&lt;ul/g, "<ul")
+      .replace(/&lt;\/ul&gt;/g, "</ul>")
+      .replace(/&lt;ol/g, "<ol")
+      .replace(/&lt;\/ol&gt;/g, "</ol>")
+      .replace(/&lt;li/g, "<li")
+      .replace(/&lt;\/li&gt;/g, "</li>")
+      .replace(/&lt;img/g, "<img")
+      .replace(/&lt;a/g, "<a")
+      .replace(/&lt;\/a&gt;/g, "</a>")
+      .replace(/&lt;strong/g, "<strong")
+      .replace(/&lt;\/strong&gt;/g, "</strong>")
+      .replace(/&lt;em/g, "<em")
+      .replace(/&lt;\/em&gt;/g, "</em>")
+      .replace(/&lt;blockquote/g, "<blockquote")
+      .replace(/&lt;\/blockquote&gt;/g, "</blockquote>")
+      .replace(/&lt;figure/g, "<figure")
+      .replace(/&lt;\/figure&gt;/g, "</figure>")
+      .replace(/&lt;figcaption/g, "<figcaption")
+      .replace(/&lt;\/figcaption&gt;/g, "</figcaption>");
+
     return decoded;
   } catch (error) {
-    console.error('Error decoding HTML content:', error);
+    console.error("Error decoding HTML content:", error);
     // If decoding fails, try basic HTML entity replacement and encoding fixes
     return content
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
       .replace(/�/g, "'");
@@ -107,98 +109,128 @@ function decodeHtmlContent(content: string): string {
 // Helper function to parse and structure blog content for better display
 function parseArticleContent(content: string) {
   const decoded = decodeHtmlContent(content);
-  
+
   // Split content into sections based on common patterns
   const sections = [];
-  const lines = decoded.split('\n\n');
-  
-  let currentSection = { type: 'intro', content: [] as string[] };
-  
+  const lines = decoded.split("\n\n");
+
+  let currentSection = { type: "intro", content: [] as string[] };
+
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
-    
+
     // Check if this line starts a new section
-    if (trimmed.startsWith('##') || trimmed.startsWith('2024\'s Most Advanced') || 
-        trimmed.startsWith('Integration, APIs') || trimmed.startsWith('Privacy and Regulatory') ||
-        trimmed.startsWith('Digital Twins in Action') || trimmed.startsWith('FAQ:') ||
-        trimmed.startsWith('Ready for Your Digital Twin')) {
-      
+    if (
+      trimmed.startsWith("##") ||
+      trimmed.startsWith("2024's Most Advanced") ||
+      trimmed.startsWith("Integration, APIs") ||
+      trimmed.startsWith("Privacy and Regulatory") ||
+      trimmed.startsWith("Digital Twins in Action") ||
+      trimmed.startsWith("FAQ:") ||
+      trimmed.startsWith("Ready for Your Digital Twin")
+    ) {
       // Save previous section if it has content
       if (currentSection.content.length > 0) {
         sections.push(currentSection);
       }
-      
+
       // Determine section type
-      let sectionType = 'content';
-      if (trimmed.includes('FAQ')) sectionType = 'faq';
-      else if (trimmed.includes('Ready for') || trimmed.includes('conclusion')) sectionType = 'conclusion';
-      else if (trimmed.includes('ranking') || trimmed.includes('At-a-Glance')) sectionType = 'ranking';
-      else if (trimmed.includes('Integration') || trimmed.includes('API')) sectionType = 'technical';
-      else if (trimmed.includes('Privacy') || trimmed.includes('Regulatory')) sectionType = 'privacy';
-      
+      let sectionType = "content";
+      if (trimmed.includes("FAQ")) sectionType = "faq";
+      else if (trimmed.includes("Ready for") || trimmed.includes("conclusion"))
+        sectionType = "conclusion";
+      else if (trimmed.includes("ranking") || trimmed.includes("At-a-Glance"))
+        sectionType = "ranking";
+      else if (trimmed.includes("Integration") || trimmed.includes("API"))
+        sectionType = "technical";
+      else if (trimmed.includes("Privacy") || trimmed.includes("Regulatory"))
+        sectionType = "privacy";
+
       currentSection = { type: sectionType, content: [trimmed] };
     } else {
       currentSection.content.push(trimmed);
     }
   }
-  
+
   // Add final section
   if (currentSection.content.length > 0) {
     sections.push(currentSection);
   }
-  
+
   return sections;
 }
 
 // Component for rendering a content section
-function ContentSection({ section, index }: { section: { type: string; content: string[] }; index: number }) {
+function ContentSection({
+  section,
+  index,
+}: {
+  section: { type: string; content: string[] };
+  index: number;
+}) {
   const getSectionStyles = (type: string) => {
     switch (type) {
-      case 'intro':
-        return 'bg-gradient-to-r from-primary/5 to-accent/5 border-l-4 border-primary p-6 rounded-r-lg';
-      case 'ranking':
-        return 'bg-muted/30 p-6 rounded-lg border-2 border-dashed border-muted-foreground/20';
-      case 'technical':
-        return 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800';
-      case 'privacy':
-        return 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-6 rounded-lg border border-green-200 dark:border-green-800';
-      case 'faq':
-        return 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 p-6 rounded-lg border border-amber-200 dark:border-amber-800';
-      case 'conclusion':
-        return 'bg-gradient-to-r from-primary/10 to-accent/10 p-6 rounded-lg border-2 border-primary/20';
+      case "intro":
+        return "bg-gradient-to-r from-primary/5 to-accent/5 border-l-4 border-primary p-6 rounded-r-lg";
+      case "ranking":
+        return "bg-muted/30 p-6 rounded-lg border-2 border-dashed border-muted-foreground/20";
+      case "technical":
+        return "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800";
+      case "privacy":
+        return "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-6 rounded-lg border border-green-200 dark:border-green-800";
+      case "faq":
+        return "bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 p-6 rounded-lg border border-amber-200 dark:border-amber-800";
+      case "conclusion":
+        return "bg-gradient-to-r from-primary/10 to-accent/10 p-6 rounded-lg border-2 border-primary/20";
       default:
-        return 'p-4';
+        return "p-4";
     }
   };
 
   return (
-    <section id={`section-${index}`} className={`mb-8 ${getSectionStyles(section.type)}`} data-type={section.type}>
+    <section
+      id={`section-${index}`}
+      className={`mb-8 ${getSectionStyles(section.type)}`}
+      data-type={section.type}
+    >
       {section.content.map((paragraph, pIndex) => {
         // Check if this is a heading
-        if (paragraph.startsWith('##') || paragraph.includes('2024\'s Most Advanced') || 
-            paragraph.includes('Integration, APIs') || paragraph.includes('Privacy and Regulatory') ||
-            paragraph.includes('Digital Twins in Action') || paragraph.includes('FAQ:') ||
-            paragraph.includes('Ready for Your Digital Twin')) {
+        if (
+          paragraph.startsWith("##") ||
+          paragraph.includes("2024's Most Advanced") ||
+          paragraph.includes("Integration, APIs") ||
+          paragraph.includes("Privacy and Regulatory") ||
+          paragraph.includes("Digital Twins in Action") ||
+          paragraph.includes("FAQ:") ||
+          paragraph.includes("Ready for Your Digital Twin")
+        ) {
           return (
-            <h2 key={pIndex} className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
-              {paragraph.replace(/^##\s*/, '')}
+            <h2
+              key={pIndex}
+              className="text-2xl md:text-3xl font-bold mb-4 text-black dark:text-white"
+            >
+              {paragraph.replace(/^##\s*/, "")}
             </h2>
           );
         }
-        
+
         // Check if this is a list item
-        if (paragraph.startsWith('- ')) {
-          const listItems = section.content.filter(item => item.startsWith('- '));
+        if (paragraph.startsWith("- ")) {
+          const listItems = section.content.filter((item) =>
+            item.startsWith("- ")
+          );
           const listIndex = listItems.indexOf(paragraph);
-          
+
           if (listIndex === 0) {
             return (
               <ul key={pIndex} className="space-y-3 ml-4">
                 {listItems.map((item, itemIndex) => (
                   <li key={itemIndex} className="flex items-start space-x-3">
                     <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
-                    <span className="text-foreground leading-relaxed">{item.substring(2)}</span>
+                    <span className="text-foreground leading-relaxed">
+                      {item.substring(2)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -206,28 +238,36 @@ function ContentSection({ section, index }: { section: { type: string; content: 
           }
           return null; // Skip individual list items as they're rendered in the ul above
         }
-        
+
         // Check if this is a question in FAQ
-        if (paragraph.startsWith('Q:')) {
+        if (paragraph.startsWith("Q:")) {
           return (
             <div key={pIndex} className="mb-4">
-              <h3 className="font-semibold text-lg mb-2 text-primary">{paragraph}</h3>
+              <h3 className="font-semibold text-lg mb-2 text-primary">
+                {paragraph}
+              </h3>
             </div>
           );
         }
-        
+
         // Check if this is an answer in FAQ
-        if (paragraph.startsWith('A:')) {
+        if (paragraph.startsWith("A:")) {
           return (
-            <p key={pIndex} className="text-muted-foreground mb-4 pl-4 border-l-2 border-primary/20 leading-relaxed">
+            <p
+              key={pIndex}
+              className="text-muted-foreground mb-4 pl-4 border-l-2 border-primary/20 leading-relaxed"
+            >
               {paragraph.substring(2).trim()}
             </p>
           );
         }
-        
+
         // Regular paragraph
         return (
-          <p key={pIndex} className="text-foreground leading-relaxed mb-4 text-base">
+          <p
+            key={pIndex}
+            className="text-foreground leading-relaxed mb-4 text-base dark:text-white"
+          >
             {paragraph}
           </p>
         );
@@ -237,22 +277,34 @@ function ContentSection({ section, index }: { section: { type: string; content: 
 }
 
 // Table of Contents component
-function TableOfContents({ sections }: { sections: { type: string; content: string[] }[] }) {
+function TableOfContents({
+  sections,
+}: {
+  sections: { type: string; content: string[] }[];
+}) {
   const getTocItems = () => {
-    return sections.map((section, index) => {
-      const firstContent = section.content[0];
-      if (firstContent && (firstContent.startsWith('##') || firstContent.includes('2024\'s Most Advanced') || 
-          firstContent.includes('Integration, APIs') || firstContent.includes('Privacy and Regulatory') ||
-          firstContent.includes('Digital Twins in Action') || firstContent.includes('FAQ:') ||
-          firstContent.includes('Ready for Your Digital Twin'))) {
-        return {
-          id: `section-${index}`,
-          title: firstContent.replace(/^##\s*/, ''),
-          type: section.type
-        };
-      }
-      return null;
-    }).filter(Boolean);
+    return sections
+      .map((section, index) => {
+        const firstContent = section.content[0];
+        if (
+          firstContent &&
+          (firstContent.startsWith("##") ||
+            firstContent.includes("2024's Most Advanced") ||
+            firstContent.includes("Integration, APIs") ||
+            firstContent.includes("Privacy and Regulatory") ||
+            firstContent.includes("Digital Twins in Action") ||
+            firstContent.includes("FAQ:") ||
+            firstContent.includes("Ready for Your Digital Twin"))
+        ) {
+          return {
+            id: `section-${index}`,
+            title: firstContent.replace(/^##\s*/, ""),
+            type: section.type,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
   };
 
   const tocItems = getTocItems();
@@ -469,39 +521,51 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         }}
       />
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 max-w-8xl">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <aside className="lg:col-span-1 order-2 lg:order-1">
-            <ArticlePageSidebar article={article} />
+            <ArticleSidebar article={article} />
           </aside>
-          
+
           {/* Main Content */}
           <main className="lg:col-span-3 order-1 lg:order-2">
-            <article className="max-w-4xl">
+            <article
+              className="max-w-4xl mx-auto p-8 rounded-lg shadow-lg dark:bg-black dark:text-white"
+              style={{
+                backdropFilter: "blur(23px) saturate(200%)",
+                WebkitBackdropFilter: "blur(23px) saturate(200%)",
+                background:
+                  "linear-gradient(135deg, rgba(247, 247, 247, 0.9) 0%, rgba(255, 255, 255, 0.88) 50%, rgba(248, 250, 252, 0.85) 100%)",
+                borderRadius: "12px",
+                border: "1px solid rgba(209, 213, 219, 0.3)",
+              }}
+            >
               {/* Article Header */}
-              <header className="mb-8">
+              <header className="mb-8 text-black dark:text-white">
                 <div className="mb-6">
                   {article.category && (
                     <Badge variant="secondary" className="mb-4">
                       {article.category}
                     </Badge>
                   )}
-                  <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
+                  <h1 className="text-4xl text-black md:text-5xl font-bold tracking-tight mb-6 leading-tight text-black">
                     {article.title}
                   </h1>
                 </div>
 
                 {/* Author and Meta Info */}
-                <div className="flex items-center space-x-4 mb-6 pb-6 border-b border-border">
+                <div className="flex items-center text-black space-x-4 mb-6 pb-6 border-b border-border">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src="" alt={article.author || "Author"} />
                     <AvatarFallback className="bg-primary/10 text-primary">
-                      {article.author ? article.author.charAt(0).toUpperCase() : "A"}
+                      {article.author
+                        ? article.author.charAt(0).toUpperCase()
+                        : "A"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center space-x-1">
                         <User className="h-4 w-4" />
                         <span>{article.author || "Future Human Labs"}</span>
@@ -531,21 +595,21 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               {article.cover_image &&
                 !article.cover_image.includes("%3C") &&
                 !article.cover_image.includes("<cloud_name>") && (
-                  <div className="mb-8 relative aspect-video rounded-lg overflow-hidden">
+                  <div className="mb-8 mx-auto relative aspect-video rounded-lg overflow-hidden flex justify-center items-center max-w-[800px] max-h-[450px] w-full">
                     <Image
                       src={article.cover_image}
                       alt={article.title}
                       fill
                       className="object-cover"
                       priority
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1000px"
+                      sizes="(max-width: 608px) 90vw, (max-width: 1000px) 80vw, 800px"
                     />
                   </div>
                 )}
 
               {/* Audio Player */}
               {article.audio_url && (
-                <div className="mb-8 p-4 bg-muted/50 rounded-lg">
+                <div className="mb-8 p-4 text-black bg-muted/50 rounded-lg">
                   <audio controls className="w-full" src={article.audio_url}>
                     Your browser does not support the audio element.
                   </audio>
@@ -554,19 +618,39 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
               {/* Article Content */}
               {article.content && (
-                <div className="article-content prose prose-xs max-w-none dark:prose-invert">
-                  {/* Check if content is HTML or plain text */}
-                  {article.content.includes('<') && article.content.includes('>') ? (
-                    // Render HTML content directly
-                    <div 
-                      dangerouslySetInnerHTML={{ 
-                        __html: decodeHtmlContent(article.content) 
-                      }} 
-                      className="prose prose-xs max-w-none dark:prose-invert 
-                                prose-headings:text-foreground prose-p:text-foreground prose-p:text-xs prose-p:leading-tight
-                                prose-li:text-foreground prose-li:text-xs prose-strong:text-foreground
+                <div className="article-content text-black prose prose-xs max-w-none prose-gray">
+                  {/* Check if content is Markdown (contains # or ## or - or *) */}
+                  {(article.content.includes("#") || 
+                    article.content.includes("*") || 
+                    article.content.includes("-") ||
+                    article.content.includes("```")) ? (
+                    // Render Markdown content
+                    <ReactMarkdown
+                      className="prose prose-xs max-w-none 
+                                prose-headings:text-black prose-p:text-black prose-p:text-xs prose-p:leading-tight
+                                prose-li:text-black prose-li:text-xs prose-strong:text-black
                                 prose-img:rounded-lg prose-img:shadow-lg
-                                prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground prose-blockquote:text-xs
+                                prose-blockquote:border-l-gray-400 prose-blockquote:text-gray-700 prose-blockquote:text-xs
+                                prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-xs
+                                prose-h1:mb-2 prose-h2:mb-2 prose-h3:mb-1 prose-h4:mb-1
+                                prose-p:mb-2 prose-ul:mb-2 prose-ol:mb-2 prose-li:mb-0
+                                prose-code:text-xs prose-pre:bg-gray-900 prose-pre:text-gray-100"
+                      remarkPlugins={[remarkGfm]}
+                    >
+                      {article.content}
+                    </ReactMarkdown>
+                  ) : article.content.includes("<") &&
+                    article.content.includes(">") ? (
+                    // Render HTML content directly
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: decodeHtmlContent(article.content),
+                      }}
+                      className="prose prose-xs max-w-none 
+                                prose-headings:text-black prose-p:text-black prose-p:text-xs prose-p:leading-tight
+                                prose-li:text-black prose-li:text-xs prose-strong:text-black
+                                prose-img:rounded-lg prose-img:shadow-lg
+                                prose-blockquote:border-l-gray-400 prose-blockquote:text-gray-700 prose-blockquote:text-xs
                                 prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-xs
                                 prose-h1:mb-2 prose-h2:mb-2 prose-h3:mb-1 prose-h4:mb-1
                                 prose-p:mb-2 prose-ul:mb-2 prose-ol:mb-2 prose-li:mb-0"
@@ -574,23 +658,30 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   ) : (
                     // Use existing parsing for plain text content
                     <>
-                      <TableOfContents sections={parseArticleContent(article.content)} />
-                      {parseArticleContent(article.content).map((section, index) => (
-                        <ContentSection key={index} section={section} index={index} />
-                      ))}
+                      <TableOfContents
+                        sections={parseArticleContent(article.content)}
+                      />
+                      {parseArticleContent(article.content).map(
+                        (section, index) => (
+                          <ContentSection
+                            key={index}
+                            section={section}
+                            index={index}
+                          />
+                        )
+                      )}
                     </>
                   )}
                 </div>
               )}
 
               {!article.content && (
-                <p className="text-center text-muted-foreground py-8">
+                <p className="text-center text-black text-muted-foreground py-8">
                   Article content is not available.
                 </p>
               )}
             </article>
           </main>
-
         </div>
       </div>
     </>

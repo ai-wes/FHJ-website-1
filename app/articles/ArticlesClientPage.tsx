@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Article } from "@/lib/mongodb";
+import ArticleSidebar from "@/components/ArticleSidebar";
 
 interface ArticlesClientPageProps {
   initialArticles: Article[];
@@ -113,66 +114,22 @@ export default function ArticlesClientPage({
         </div>
       </section>
 
-      {/* Search and Filter Controls */}
-      <section className="py-4 border-b">
-        <div className="container px-8">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search articles..."
-                value={search}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleCategoryChange("")}
-                className={`
-                  ${
-                    filterCategory === ""
-                      ? "bg-slate-100 text-slate-900 border-cyan-400 shadow-[0_0_8px_rgba(0,188,212,0.4)]"
-                      : "bg-slate-800/20 text-slate-100 border-slate-700 hover:bg-slate-700/30"
-                  } transition-all duration-200
-                `}
-              >
-                All
-              </Button>
-              {[
-                "Technology",
-                "Biotechnology",
-                "Philosophy",
-                "Society",
-                "Environment",
-                "Neuroscience",
-              ].map((category) => (
-                <Button
-                  key={category}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleCategoryChange(category)}
-                  className={`
-                    ${
-                      filterCategory === category
-                        ? "bg-slate-100 text-slate-900 border-cyan-400 shadow-[0_0_8px_rgba(0,188,212,0.4)]"
-                        : "bg-slate-800/20 text-slate-100 border-slate-700 hover:bg-slate-700/30"
-                    } transition-all duration-200
-                  `}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Content */}
+      {/* Main Content with Sidebar */}
       <section className="py-4 md:py-6 relative">
-        <div className="container px-8">
+        <div className="container px-8 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Sidebar */}
+            <aside className="lg:col-span-1 order-2 lg:order-1">
+              <ArticleSidebar
+                search={search}
+                setSearch={handleSearchChange}
+                filterCategory={filterCategory}
+                setFilterCategory={handleCategoryChange}
+              />
+            </aside>
+            
+            {/* Main Content */}
+            <main className="lg:col-span-3 order-1 lg:order-2">
           {/* Results count */}
           <div className="text-xs text-muted-foreground mb-4">
             {filteredArticles.length} articles found
@@ -203,7 +160,14 @@ export default function ArticlesClientPage({
               filteredArticles.map((article: Article) => (
                 <Card
                   key={article.slug || article._id}
-                  className="p-0 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-slate-50 to-blue-50 border border-slate-200/50 backdrop-blur-sm hover:scale-[1.02]"
+                  className="p-0 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                  style={{
+                    backdropFilter: "blur(23px) saturate(200%)",
+                    WebkitBackdropFilter: "blur(23px) saturate(200%)",
+                    background: "linear-gradient(135deg, rgba(234, 234, 234, 0.8) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(240, 248, 255, 0.7) 100%)",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(209, 213, 219, 0.3)",
+                  }}
                 >
                   <div className="h-24 sm:h-28 md:h-32 overflow-hidden">
                     <Image
@@ -278,6 +242,8 @@ export default function ArticlesClientPage({
                 </Button>
               </div>
             )}
+          </div>
+            </main>
           </div>
         </div>
       </section>
