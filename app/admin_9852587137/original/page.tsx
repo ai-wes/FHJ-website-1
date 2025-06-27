@@ -561,6 +561,8 @@ Summarize your key points and provide actionable takeaways.
   };
 
   const handleDeleteArticle = async (articleId: string) => {
+    console.log("DEBUG: API_BASE_URL:", API_BASE_URL);
+    console.log("DEBUG: articleId:", articleId);
     if (
       !confirm(
         "Are you sure you want to delete this article? This action cannot be undone."
@@ -572,13 +574,19 @@ Summarize your key points and provide actionable takeaways.
       const response = await fetch(`${API_BASE_URL}/articles/${articleId}`, {
         method: "DELETE",
       });
+      console.log("DEBUG: DELETE response status:", response.status);
+      const responseText = await response.text();
+      console.log("DEBUG: DELETE response text:", responseText);
 
       if (response.ok) {
         await loadArticles();
         alert("Article deleted successfully!");
       } else {
-        const errorText = await response.text();
-        console.error("Failed to delete article:", response.status, errorText);
+        console.error(
+          "Failed to delete article:",
+          response.status,
+          responseText
+        );
         alert(`Failed to delete article. Status: ${response.status}`);
       }
     } catch (error) {
