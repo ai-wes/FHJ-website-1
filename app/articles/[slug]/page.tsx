@@ -12,15 +12,10 @@ import remarkGfm from "remark-gfm";
 // Helper function to properly decode HTML content and fix encoding issues
 function decodeHtmlContent(content: string): string {
   try {
-    // First, try to decode if it's URL encoded
     let decoded = content;
-
-    // Check if content appears to be URL encoded
     if (content.includes("%") && content.includes("%3C")) {
       decoded = decodeURIComponent(content);
     }
-
-    // Fix HTML entity encoding that appears as literal text (like from API response)
     decoded = decoded
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
@@ -37,25 +32,17 @@ function decodeHtmlContent(content: string): string {
       .replace(/&hellip;/g, "…")
       .replace(/&copy;/g, "©")
       .replace(/&reg;/g, "®")
-      .replace(/&trade;/g, "™");
-
-    // Fix common UTF-8 encoding issues
-    decoded = decoded
-      .replace(/â€™/g, "'") // curly apostrophe
-      .replace(/â€œ/g, '"') // left double quote
-      .replace(/â€/g, '"') // right double quote
-      .replace(/â€"/g, "—") // em dash
-      .replace(/â€"/g, "–") // en dash
+      .replace(/&trade;/g, "™")
+      .replace(/â€™/g, "'")
+      .replace(/â€œ/g, '"')
+      .replace(/â€/g, '"')
+      .replace(/â€"/g, "—")
       .replace(/they're/g, "they're")
       .replace(/don't/g, "don't")
       .replace(/can't/g, "can't")
       .replace(/won't/g, "won't")
       .replace(/it's/g, "it's")
       .replace(/that's/g, "that's")
-      .replace(//g, "'"); // generic replacement for corrupted apostrophes
-
-    // Handle escaped HTML that might be double-encoded
-    decoded = decoded
       .replace(/&lt;br&gt;/g, "<br>")
       .replace(/&lt;\/br&gt;/g, "</br>")
       .replace(/&lt;p&gt;/g, "<p>")
@@ -90,19 +77,16 @@ function decodeHtmlContent(content: string): string {
       .replace(/&lt;figure/g, "<figure")
       .replace(/&lt;\/figure&gt;/g, "</figure>")
       .replace(/&lt;figcaption/g, "<figcaption")
-      .replace(/&lt;\/figcaption&gt;/g, "</figcaption>")
-
+      .replace(/&lt;\/figcaption&gt;/g, "</figcaption>");
     return decoded;
   } catch (error) {
     console.error("Error decoding HTML content:", error);
-    // If decoding fails, try basic HTML entity replacement and encoding fixes
     return content
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
       .replace(/&amp;/g, "&")
       .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/�/g, "'");
+      .replace(/&#39;/g, "'");
   }
 }
 
@@ -620,10 +604,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               {article.content && (
                 <div className="article-content text-black prose prose-xs max-w-none prose-gray">
                   {/* Check if content is Markdown (contains # or ## or - or *) */}
-                  {(article.content.includes("#") || 
-                    article.content.includes("*") || 
-                    article.content.includes("-") ||
-                    article.content.includes("```")) ? (
+                  {article.content.includes("#") ||
+                  article.content.includes("*") ||
+                  article.content.includes("-") ||
+                  article.content.includes("```") ? (
                     // Render Markdown content
                     <ReactMarkdown
                       className="prose prose-xs max-w-none 
